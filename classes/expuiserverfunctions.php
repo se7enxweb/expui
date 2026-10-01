@@ -16,6 +16,7 @@
  * exp::compat $.ez() on the page's jQuery as a wrapper over Exp.io.call() (needs exp::io)
  * exp::collapse  Exp.collapse(), $.fn.expCollapse: collapsible menus (needs exp::core)
  * exp::sticky    Exp.sticky, $.fn.expSticky: the toolbar that stays in view (needs exp::core)
+ * exp::dialog, exp::upload, exp::datatable, exp::datepicker, exp::autosave  the modules of self::MODULES
  *
  * The packed files carry nothing that differs between siteaccesses or users: the packer caches them by file and
  * address. Per-page values (the siteaccess's locale, translations, preferences) are written into the page by the
@@ -27,6 +28,12 @@
 class expUIServerFunctions
 {
     const VERSION = '1.0.0.0';
+
+    /**
+     * The module packer keys: exp::<name> puts exp/<name>.js in front of the rest of the pack (each needs exp::core
+     * first; the modules that talk to the server need exp::io too).
+     */
+    const MODULES = array( 'collapse', 'sticky', 'dialog', 'upload', 'datatable', 'datepicker', 'autosave' );
 
     /** The ezjscore call view's separator between calls in one request. */
     const CALL_SEPARATOR = '@SEPARATOR$';
@@ -41,7 +48,7 @@ class expUIServerFunctions
      */
     public static function getCacheTime( $fn )
     {
-        if ( in_array( $fn, array( 'core', 'io', 'compat', 'collapse', 'sticky' ), true ) )
+        if ( in_array( $fn, array_merge( array( 'core', 'io', 'compat' ), self::MODULES ), true ) )
         {
             return -1;
         }
@@ -125,6 +132,41 @@ class expUIServerFunctions
     public static function sticky( $args, &$packerFiles )
     {
         $packerFiles = array_merge( array( 'exp/sticky.js' ), $packerFiles );
+        return '';
+    }
+
+    /** exp::dialog: Exp.dialog, dialogs on the native <dialog> element. */
+    public static function dialog( $args, &$packerFiles )
+    {
+        $packerFiles = array_merge( array( 'exp/dialog.js' ), $packerFiles );
+        return '';
+    }
+
+    /** exp::upload: $.fn.expUpload, uploads with progress, drop zones and several files (its errors are Exp.io.Error when exp::io is loaded). */
+    public static function upload( $args, &$packerFiles )
+    {
+        $packerFiles = array_merge( array( 'exp/upload.js' ), $packerFiles );
+        return '';
+    }
+
+    /** exp::datatable: $.fn.expDataTable, sortable, paged tables with selection and inline editing (exp::io for server function sources and saving edits). */
+    public static function datatable( $args, &$packerFiles )
+    {
+        $packerFiles = array_merge( array( 'exp/datatable.js' ), $packerFiles );
+        return '';
+    }
+
+    /** exp::datepicker: $.fn.expDatePicker, a date (and time) picker bound to the existing date fields. */
+    public static function datepicker( $args, &$packerFiles )
+    {
+        $packerFiles = array_merge( array( 'exp/datepicker.js' ), $packerFiles );
+        return '';
+    }
+
+    /** exp::autosave: $.fn.expAutosave and $.fn.expPreview, drafts saved while editing (exp::collapse for the preview). */
+    public static function autosave( $args, &$packerFiles )
+    {
+        $packerFiles = array_merge( array( 'exp/autosave.js' ), $packerFiles );
         return '';
     }
 

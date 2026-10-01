@@ -120,19 +120,20 @@ final class ServerFunctionsTest extends TestCase
         eZINI::resetInstance( 'ezjscore.ini' );
     }
 
-    public function testCollapseAndStickyPutTheirFileInFront()
+    public function testEveryModulePutsItsFileInFront()
     {
-        $pack = array( 'mine.js' );
-        expUIServerFunctions::collapse( array(), $pack );
-        $this->assertSame( array( 'exp/collapse.js', 'mine.js' ), $pack );
-        $pack = array( 'mine.js' );
-        expUIServerFunctions::sticky( array(), $pack );
-        $this->assertSame( array( 'exp/sticky.js', 'mine.js' ), $pack );
+        $this->assertSame( array( 'collapse', 'sticky', 'dialog', 'upload', 'datatable', 'datepicker', 'autosave' ), expUIServerFunctions::MODULES );
+        foreach ( expUIServerFunctions::MODULES as $module )
+        {
+            $pack = array( 'mine.js' );
+            expUIServerFunctions::$module( array(), $pack );
+            $this->assertSame( array( 'exp/' . $module . '.js', 'mine.js' ), $pack, 'exp::' . $module );
+        }
     }
 
     public function testCacheTimes()
     {
-        foreach ( array( 'core', 'io', 'compat', 'collapse', 'sticky' ) as $fn )
+        foreach ( array_merge( array( 'core', 'io', 'compat' ), expUIServerFunctions::MODULES ) as $fn )
         {
             $this->assertSame( -1, expUIServerFunctions::getCacheTime( $fn ), $fn . ' adds files, so it must run at once' );
         }

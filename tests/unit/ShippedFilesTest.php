@@ -103,8 +103,10 @@ final class ShippedFilesTest extends TestCase
         expUIServerFunctions::core( array(), $pack );
         expUIServerFunctions::io( array(), $pack );
         expUIServerFunctions::compat( array(), $pack );
-        expUIServerFunctions::collapse( array(), $pack );
-        expUIServerFunctions::sticky( array(), $pack );
+        foreach ( expUIServerFunctions::MODULES as $module )
+        {
+            expUIServerFunctions::$module( array(), $pack );
+        }
         foreach ( $pack as $file )
         {
             if ( strpos( $file, '::' ) !== false || strpos( $file, '://' ) !== false )
@@ -115,6 +117,22 @@ final class ShippedFilesTest extends TestCase
             $this->assertFileExists( $path );
         }
         $this->assertFileExists( $this->path( 'design/standard/stylesheets/exp/core.css' ) );
+    }
+
+    public function testTheAdminLoadsEveryModuleAndItsStylesheetsExist()
+    {
+        $ini = (string)file_get_contents( $this->path( 'settings/design.ini.append.php' ) );
+        preg_match_all( '/^BackendJavaScriptList\[\]=(\S+)\s*$/m', $ini, $js );
+        foreach ( expUIServerFunctions::MODULES as $module )
+        {
+            $this->assertContains( 'exp::' . $module, $js[1], 'the admin loads exp::' . $module );
+        }
+        preg_match_all( '/^BackendCSSFileList\[\]=(\S+)\s*$/m', $ini, $css );
+        $this->assertNotEmpty( $css[1] );
+        foreach ( $css[1] as $file )
+        {
+            $this->assertFileExists( $this->path( 'design/standard/stylesheets/' . $file ) );
+        }
     }
 
     public function testJavascriptParses()
