@@ -21,6 +21,25 @@ order, the admin designs also get the configuration block and the admin's
 collapsible menus and edit toolbar on Exponential UI. They behave as before
 and were tested by use in admin, admin2 and admin3.
 
+### Which YUI features already run on Exponential UI?
+
+In 1.0.0.1: the admin's collapsible menus and edit toolbar, the sub-items
+table and eztags' children table, the relation upload and ezmultiupload, the
+date and date/time fields (admin, ezwebin, ezdemo), ezautosave's autosave and
+preview, and asynchronous publishing's status page. [MODULES.md](MODULES.md)
+has the list, [ROADMAP.md](ROADMAP.md) what follows (ezflow next).
+
+### What happens to those features without Exponential UI?
+
+They run on YUI, as before: every template that was moved kept its YUI version
+and uses it when Exponential UI is not active (or a module is not on the page).
+
+### The sub-items table looks the same. How do I know which version runs?
+
+In the browser's console, `Exp.$('#content-sub-items-list').data('expDataTable')`
+is the table's instance when Exponential UI runs it, and `undefined` when YUI
+does.
+
 ### The page already has jQuery 3. Do they conflict?
 
 No. Exponential UI keeps jQuery 4 as `Exp.$` and gives the page its own `jQuery`

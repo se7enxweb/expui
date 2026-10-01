@@ -12,10 +12,15 @@ extension/expui/
 │   │   ├── core.js                      Exp: config, i18n, events, modules, prefs, keys
 │   │   ├── io.js                        Exp.io: call, form, poll, url
 │   │   ├── compat.js                    $.ez() over Exp.io
+│   │   ├── collapse.js, sticky.js       the admin shell's modules
+│   │   ├── dialog.js, upload.js,        the admin content's modules
+│   │   │   datatable.js, datepicker.js,
+│   │   │   autosave.js
 │   │   └── test/                        the browser unit tests and their runner
 │   ├── lib/jquery/                      jQuery 4.0.0, jQuery Migrate 4.0.2 (+ their licences)
-│   ├── stylesheets/exp/core.css         the design tokens
-│   └── templates/expui/test.tpl         the test page
+│   ├── lib/jquery-ui/                   jQuery UI 1.14.2, for ezjsc::jqueryUI
+│   ├── stylesheets/exp/                 core.css (the design tokens) and one stylesheet per module
+│   └── templates/                       expui/test.tpl (the test page), page_head_exp.tpl (the admin head hook)
 ├── modules/expui/                       module.php, test.php (the test page, an echo for form tests)
 ├── settings/                            expui.ini, ezjscore.ini, module.ini, design.ini, site.ini
 ├── tests/                               PHPUnit: bootstrap and unit tests
@@ -41,7 +46,8 @@ How a page gets the API
    | 4 | `exp::boot` (inline) | checks it is jQuery 4, keeps it as `Exp.$`; if the page had another jQuery, `noConflict(true)` gives the page its `jQuery` and `$` back |
    | 5 | `exp/core.js` | the core, on `Exp.$` |
 
-   `exp::io` and `exp::compat` add their file the same way. The inline parts
+   `exp::io`, `exp::compat` and the module keys (the names in
+   `expUIServerFunctions::MODULES`) add their file the same way. The inline parts
    have a file time, so the packer caches them inside the pack, in order.
 3. The packer writes one file (`var/<site>/cache/public/javascript/<hash>.js`)
    and the page loads it.
@@ -95,15 +101,29 @@ kernel mechanisms, without overriding any of their templates:
   `design/standard`, is empty. Exponential UI's copy, in its own
   `design/standard`, writes `{exp_config()}`, and wins because extension design
   directories are searched before the kernel's for each design.
-- **The script list.** `design.ini` `[JavaScriptSettings]
-  BackendJavaScriptList[]` is the admin's packed script list.
-  `settings/design.ini.append.php` appends `exp::core::shared`, `exp::collapse`
-  and `exp::sticky` to it, behind `ezjsc::jquery`.
+- **The script and stylesheet lists.** `design.ini` `[JavaScriptSettings]
+  BackendJavaScriptList[]` is the admin's packed script list, and
+  `[StylesheetSettings] BackendCSSFileList[]` its packed stylesheet list.
+  `settings/design.ini.append.php` appends `exp::core::shared`, `exp::io` and
+  every module key to the first, behind `ezjsc::jquery`, and `exp/core.css`
+  with the modules' stylesheets to the second
+  ([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)).
 
-The admin templates call `Exp.collapse()` inside `if (window.Exp && …)`. Without
+The admin templates that use a module test for it first
+(`if (window.Exp && window.Exp.collapse)`, `Exp.$.fn.expDataTable`,
+`window.Exp.datepicker`, `window.Exp.autosave` …) and keep their YUI code in
+the other branch, so each feature has exactly one owner on a page. Without
 Exponential UI, the right menu's link still works: it is a plain
 `user/preferences/set/...` address that reloads the page. `fixed_toolbar.js`
-returns at once when `Exp.sticky` is there, so the toolbar has one owner.
+returns at once when `Exp.sticky` is there, and `showDatePicker()` is defined
+by `exp::datepicker` when it is on the page, so the date templates' icon opens
+its calendar.
+
+Templates outside the admin's lists load what they need themselves: the
+ezwebin and ezdemo date templates, ezwebin's autosave template and
+asynchronous publishing's `content/queued.tpl` write `{exp_config()}` and ask
+for `ezjsc::jquery`, `exp::core::shared` and their modules when expui is
+active.
 
 **Configuration blocks are merged.** The admin head writes one block, and a
 template may add its own (`{exp_config( hash( 'prefs', … ) )}`) anywhere. The
@@ -150,8 +170,9 @@ Writing a module
 }(window));
 ```
 
-Then: a server function `myThing()` in `expUIServerFunctions` that adds its file
-(and `getCacheTime()` returning `-1` for it), its CSS under
+Then: a server function `myThing()` in `expUIServerFunctions` that adds its file,
+its name in `expUIServerFunctions::MODULES` (so `getCacheTime()` returns `-1`
+for it), its CSS under
 `stylesheets/exp/`, its texts in `[ExpUI] Strings` and the translations, its
 tests (see [TESTING.md](TESTING.md)), its page in `doc/modules/`.
 

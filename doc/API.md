@@ -1,15 +1,16 @@
 API reference
 =============
 
-Version 1.0.0.0. Everything below is available today; [MODULES.md](MODULES.md)
-lists what lands next.
+Version 1.0.0.1. Everything below is available today; [MODULES.md](MODULES.md)
+lists what lands next. The modules (`exp::collapse` and after) are summed up
+here; each has its full page in `doc/modules/`.
 
 Loading
 -------
 
 | Template | Loads |
 |---|---|
-| `{exp_config( hash( 'prefs', array(…), 'strings', array(…) ) )}` | the page's configuration block (once per page, before the scripts) |
+| `{exp_config( hash( 'prefs', array(…), 'strings', array(…) ) )}` | the page's configuration block (in the pagelayout's `<head>`, and again wherever a template needs its own preferences or texts) |
 | `{ezscript_require( 'exp::core' )}` | jQuery 4, jQuery Migrate 4 (while `[ExpUI] Migrate=enabled`), the core |
 | `{ezscript_require( array( 'exp::core', 'exp::io' ) )}` | … and the server calls |
 | `{ezscript_require( array( 'exp::core', 'exp::io', 'exp::compat' ) )}` | … and `$.ez()` over `Exp.io` |
@@ -34,6 +35,16 @@ nothing: the running core, its events and its modules stay.
 | `exp::core::shared` | the core without its own jQuery when `ezjsc::jquery`, earlier in the same list, loads the same jQuery release (compared by file name); otherwise like `exp::core` |
 | `exp::collapse` | `Exp.collapse()`, `$.fn.expCollapse` (needs the core) |
 | `exp::sticky` | `Exp.sticky`, `$.fn.expSticky` (needs the core) |
+| `exp::dialog` | `Exp.dialog`, `data-exp-dialog` (needs the core; `Exp.dialog.form()` also `exp::io`) |
+| `exp::upload` | `Exp.upload`, `$.fn.expUpload`, `data-exp-upload` (needs the core; `exp::io` gives failures their `Exp.io.Error` type) |
+| `exp::datatable` | `Exp.datatable`, `$.fn.expDataTable`, `data-exp-datatable` (needs the core; `exp::io` for server sources) |
+| `exp::datepicker` | `Exp.datepicker`, `$.fn.expDatePicker`, `window.showDatePicker()` (needs the core) |
+| `exp::autosave` | `Exp.autosave`, `$.fn.expAutosave`, `$.fn.expPreview` (needs the core; the preview also `exp::collapse`) |
+
+Their stylesheets: `exp/dialog.css`, `exp/upload.css`, `exp/datatable.css`,
+`exp/datepicker.css` (and `exp/autosave.css`, empty for now), each on top of
+`exp/core.css`. The admin designs load every key above but `exp::compat`, and
+every stylesheet, on every page.
 
 `Exp` core (`exp::core`)
 -----------------------
@@ -54,7 +65,7 @@ Exp.jQueryShared         // true when jQuery 4 is also window.jQuery
 ### `Exp.version`, `Exp.config`
 
 ```js
-Exp.version              // "1.0.0.0"
+Exp.version              // "1.0.0.1"
 Exp.config.root          // "/admin/"           the siteaccess's base address
 Exp.config.www           // "/"                 the installation's web root
 Exp.config.siteaccess    // "admin"
@@ -83,12 +94,17 @@ Exp.i18n('The server answered with an error (HTTP %status).', { '%status': 500 }
 
 ### `Exp.on(name, fn)`, `Exp.off(name, fn)`, `Exp.emit(name, data)`
 
-Page-wide events. Handlers get `(event, data)`. The API's own events:
+Page-wide events. Handlers get `(event, data)`. The core's own events:
 
 | Event | Data |
 |---|---|
 | `exp:started` | `{ root, only }` after `Exp.start()` |
 | `exp:prefs:set` | `{ name, value }` after a preference was saved |
+
+The modules' events are listed with each module below:
+`exp:collapse`, `exp:dialog:*`, `exp:upload:*`, `exp:datatable:*`,
+`exp:datepicker:*`, `exp:autosave:*`. The dialog, upload and datatable events
+are also triggered on their element, and bubble.
 
 ### `Exp.register(name, init)`, `Exp.start(root, only)`, `Exp.modules()`
 
@@ -244,7 +260,8 @@ Instance: `collapse()`, `uncollapse()` (also `expand()`), `toggle()`,
 
 ### `$(el).expCollapse(conf)`
 
-The same, with `conf.link` = each element.
+The same, with `conf.link` = each element. Everything about it:
+[modules/collapse.md](modules/collapse.md).
 
 `exp::sticky`
 -------------
@@ -272,6 +289,148 @@ position where it fixes), `onScroll()`.
 `Exp.sticky.start('#controlbar-top')` with the defaults above: the admin's edit
 forms. `exp::sticky` calls it when the page is ready, and `fixed_toolbar.js`
 returns at once when `Exp.sticky` is there.
+
+Everything about it: [modules/sticky.md](modules/sticky.md).
+
+`exp::dialog`
+-------------
+
+Modal dialogs on the native `<dialog>` element. Every call returns a Promise;
+a dismissed dialog resolves with `null` (`confirm`: `false`).
+
+| Call | Resolves with |
+|---|---|
+| `Exp.dialog.open(options)` | the value of the button that closed it, or `null` |
+| `Exp.dialog.confirm(text, { okLabel, cancelLabel, danger, title, size, onClose })` | `true` or `false` |
+| `Exp.dialog.alert(text, { okLabel, title, size, onClose })` | `undefined` |
+| `Exp.dialog.form(url, { title, content, action, onResponse, … })` | the server's answer to the posted form (`Exp.io.form()`), or `null` |
+| `Exp.dialog.create(options)` | (returns the dialog, not opened) |
+| `Exp.dialog.current()`, `Exp.dialog.closeAll()` | (the dialog on top or `null`; dismisses every open one) |
+
+Each returned Promise has the dialog as `.dialog`. Options of `open`: `title`,
+`content` / `url` (with `method`, `data`) / `template`, `buttons` (`label`,
+`value`, `primary`, `danger`, `name`, `action`, `close`), `size` (`s`, `m`, `l`,
+`xl`), `width`, `className`, `dismissible`, `closeOnBackdrop`, `closeSelector`,
+`initialFocus`, `role`, `describedBy`, `labelledBy`, `keep`, `scripts`,
+`onOpen`, `onClose`.
+
+The dialog: `open()`, `close(value)`, `setTitle()`, `setContent()`,
+`setButtons()`, `load(url, { method, data })`, `busy(on)`, `error(text)`,
+`destroy()`; `isOpen`, `value`, `element`, `$body`;
+`$(dialog.element).data('expDialog')`.
+
+Events (on the `<dialog>` and page-wide): `exp:dialog:open` `{ dialog }`,
+`exp:dialog:close` `{ dialog, value }`. Markup: `data-exp-dialog` with
+`confirm`, `form`, `template` or `url`, and `data-exp-dialog-close` inside a
+dialog. Everything about it: [modules/dialog.md](modules/dialog.md).
+
+`exp::upload`
+-------------
+
+### `$(el).expUpload(options)`
+
+Files uploaded one request per file, with progress, Cancel, several at once and
+drop zones. `el` is a container (the chooser, the drop hint and the list are
+built in it) or an `<input type="file">`.
+
+Options: `url` (required), `name`, `multiple`, `accept`, `drop`, `maxSize`,
+`data`, `form`, `token`, `auto`, `parallel`, `responseType` (`auto`, `json`,
+`text`), `headers`, `list`, `input`, `texts`, and the callbacks `onAdd`,
+`onRefuse`, `onStart`, `onProgress`, `onDone(response, file)`,
+`onFail(error, file)`, `onCancel`, `onComplete(summary)`.
+
+The instance (`$(el).expUpload('instance')` or `$(el).data('expUpload')`):
+`add(files)`, `start()` (a Promise of the summary), `cancel(file | id)` (no
+argument: all), `files()`, `progress()`, `clear()`, `enable()`, `disable()`,
+`destroy()`. `$(el).expUpload('start')` and the like call a method on each
+element.
+
+`Exp.upload.size(bytes)` (`"1.5 kB"`, in the page's language),
+`Exp.upload.accepted(file, accept)`, `Exp.upload.Upload` (the class).
+
+Events (on the element and page-wide), with `{ upload, file, … }`:
+`exp:upload:add`, `:refuse` `{ reason }`, `:start`, `:progress`
+`{ loaded, total, percent, overall }`, `:done` `{ response }`, `:fail`
+`{ error }`, `:cancel`, and `:complete` `{ upload, files, done, failed, canceled }`.
+Markup: `data-exp-upload` with the options as JSON. Everything about it:
+[modules/upload.md](modules/upload.md).
+
+`exp::datatable`
+----------------
+
+### `$(el).expDataTable(options)`
+
+Sortable, paged tables with selection, column toggling, inline editing, action
+menus, a "Table options" dialog and a filter. `el` is an element to build the
+table in, or an existing `<table>` (its header gives the columns, its rows the
+data).
+
+Options: `columns`, `source` (`{ rows }`, `{ dom: true }`, `{ url, … }`,
+`{ fn, args, … }` for `Exp.io.call()`, or a function of the state), `rowKey`,
+`sort`, `paging` (or `false`), `select`, `columnToggle`, `inlineEdit`,
+`actions`, `actionsContainer`, `tableOptions`, `filter`, `keyboard`, `empty`,
+`loading`, `error`, `caption`, `tableClass`, `dateFormat`, `onLoad`, `onRender`,
+`initialLoad`.
+
+The instance (`$(el).data('expDataTable')`, or
+`$(el).expDataTable('method', args…)`): `load()`, `reload()`, `flushCache()`,
+`setPage()`, `setLimit()`, `sortBy(key, dir)`, `setFilter()`, `page()`,
+`pages()`, `total`, `stateCopy()`, `rows()`, `selected()`, `selectAll()`,
+`invert()`, `showColumn()`, `hideColumn()`, `visibleColumns()`,
+`openOptions()`, `closeOptions()`, `action(id)`, `destroy()`. Calling
+`$(el).expDataTable(options)` again sets it up again.
+
+`Exp.datatable`: `DataTable` (the class) and its helpers `formatDate()`,
+`validateNumber()`, `normalizeOffset()`, `pageRange()`, `escapeHtml()`.
+
+Events (on the element and page-wide), with `{ table, … }`:
+`exp:datatable:load`, `:sort`, `:page`, `:filter`, `:select`, `:edit`,
+`:invalid`, `:columns`, `:options`, `:error`. Markup: `data-exp-datatable`
+with the options as JSON. Everything about it:
+[modules/datatable.md](modules/datatable.md).
+
+`exp::datepicker`
+-----------------
+
+### `$(el).expDatePicker(options)`
+
+A calendar for existing date fields: `fields` (`year`, `month`, `day`, optional
+`hour`, `minute`, selectors inside `el`), `button`, `min` (`'1970-01-01'`),
+`max`, `firstDay` (the siteaccess's). Choosing a day fills the fields without
+leading zeros and an empty time with 12:00.
+
+`Exp.datepicker.open({ fields, anchor, container, min, max, firstDay, onSelect })`
+opens one now and returns `{ close(), element }` (or `null`);
+`Exp.datepicker.close()`, `Exp.datepicker.isOpen()`.
+`window.showDatePicker( base, id, datatype )` is what the date templates'
+calendar icon calls.
+
+Events (page-wide): `exp:datepicker:open` `{ fields }`,
+`exp:datepicker:select` `{ date, fields }`, `exp:datepicker:close`
+`{ fields }`. Everything about it: [modules/datepicker.md](modules/datepicker.md).
+
+`exp::autosave`
+---------------
+
+### `new Exp.autosave.AutoSubmit(conf)`, `$(form).expAutosave(conf)`
+
+Saves a form as a draft while it is edited, only when it changed: `form`,
+`action`, `interval` (300 s), `trackUserInput`, `ignoreClass`, `enabled`,
+`beforeSerialize` (default: TinyMCE's `triggerSave()`). Methods: `start()`,
+`stop()`, `submit(fields)`, `on(event, fn)` with `init`, `beforesave`,
+`success`, `error`, `abort`, `nochange`. `Exp.emit('autosubmit:forcesave')`
+saves every autosave on the page now.
+
+### `new Exp.autosave.Preview(conf)`, `$(el).expPreview(conf)`
+
+The draft's preview in the edit page: `buttonPlace`, `place`, `preview`,
+`element`, `texts`, `topPosition`, `previewTemplate`, `elementTemplate`.
+Methods: `init()`, `loading()`, `setContent(html)`, `error(text)`, `close()`.
+
+Also `Exp.autosave.instances` (by form id) and
+`Exp.autosave.serializeForm(form, ignoreClass)`. Events (page-wide):
+`exp:autosave:<event>` with `{ form }` (and `json` for `success` and `error`).
+Everything about it: [modules/autosave.md](modules/autosave.md).
 
 CSS (`exp/core.css`)
 --------------------

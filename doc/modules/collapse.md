@@ -4,8 +4,24 @@ exp::collapse
 Menus and panels that collapse and expand, and remember it per user.
 Available since 1.0.0.0. Replaces YUI 3's `ezcollapsiblemenu` (`Y.eZ.CollapsibleMenu`).
 
-First steps
------------
+In the admin: nothing to do
+---------------------------
+
+With Exponential UI active, every admin design loads `exp::collapse`, and the
+admin's collapsible menus run on it:
+
+- the right menu, in the admin and admin2 designs;
+- the edit page's object information menu, in the admin design. admin3 keeps
+  that menu switched off; its template has the Exponential UI version
+  commented out, ready to switch on.
+
+They collapse, expand and remember their state as the YUI versions did, with
+the same preference (`admin_right_menu_show` for the right menu). Without
+Exponential UI the right menu's link still works: it is a plain
+`user/preferences/set/...` address that reloads the page.
+
+In your own templates
+---------------------
 
 ```html
 {exp_config()}
@@ -44,11 +60,11 @@ rendered closed.
 Options
 -------
 
-| Option | | |
+| Option | Type | |
 |---|---|---|
 | `link` | selector or element | what collapses and expands it on click; it gets `aria-expanded` |
 | `collapsed` | `0`/`1`, `"0"`/`"1"` | the state the page was made in |
-| `content` | `[expanded, collapsed]` or `false` | the link's HTML for each state; `false` leaves it alone |
+| `content` | `[expanded, collapsed]` or `false` | the link's HTML for each state; `false` (the default) leaves it alone |
 | `elements` | array | what changes, see below |
 | `pref` | `{ name, values }` | the preference saved after each change: `values[collapsed]` (default `[0, 1]`) |
 | `callback` | function | after each change; `this` is the instance |
@@ -84,7 +100,9 @@ being that element.
 Events
 ------
 
-`exp:collapse`, with `{ link, collapsed }`, after each change:
+| Event | Data |
+|---|---|
+| `exp:collapse` | `{ link, collapsed }`, after each change (page-wide, `Exp.on()`) |
 
 ```js
 Exp.on('exp:collapse', function (e, data) { console.log(data.link.id, data.collapsed); });
@@ -95,7 +113,8 @@ Keyboard and screen readers
 
 Use a real link or button as `link`: it is reached with Tab and pressed with
 Enter (or Space for a button). `aria-expanded` tells screen readers whether
-the panel is open.
+the panel is open. The link's `href` stays as the fallback without
+JavaScript.
 
 From YUI
 --------
@@ -138,16 +157,11 @@ preference callback with `pref` (or keep a `callback` that calls
 `Y.one('#leftmenu').get('clientWidth')` becomes
 `Exp.$('#leftmenu')[0].clientWidth`.
 
-> [!NOTE]
-> **Where the admin uses it:** the right menu (admin and admin2 designs) and
-> the edit page's object information menu (admin design; admin3 keeps it
-> switched off, and its template has the Exponential UI version commented out,
-> ready to switch on).
-
 Tests
 -----
 
-`design/standard/javascript/exp/test/collapse.test.js`, on `/expui/test`:
+`design/standard/javascript/exp/test/collapse.test.js`, 8 tests on
+`/expui/test`:
 
 - the two styles, at once and animated;
 - the link and `aria-expanded`;

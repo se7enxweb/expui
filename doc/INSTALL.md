@@ -75,7 +75,7 @@ Check it
 --------
 
 Open **`/expui/test`** in the admin. Every unit test of the API runs there; the
-page should say **all passed** (43 in 1.0.0.0). The page needs the `expui/test`
+page should say **all passed** (110 tests in 1.0.0.1). The page needs the `expui/test`
 policy; administrators have it.
 
 From the shell, the PHP side:
@@ -95,14 +95,30 @@ whatever the order:
   `page_head_exp.tpl` is empty, and Exponential UI's copy writes
   `{exp_config()}`;
 - the admin's script list (`[JavaScriptSettings] BackendJavaScriptList[]` in
-  `design.ini`) gets `exp::core::shared`, `exp::collapse` and `exp::sticky`:
+  `design.ini`) gets `exp::core::shared`, `exp::io`, `exp::collapse`,
+  `exp::sticky`, `exp::dialog`, `exp::upload`, `exp::datatable`,
+  `exp::datepicker` and `exp::autosave`, and its stylesheet list
+  (`[StylesheetSettings] BackendCSSFileList[]`) the modules' stylesheets with
+  `exp/core.css`:
   - the core uses the page's jQuery 4 instead of loading a second copy;
   - the admin's collapsible menus run on `exp::collapse` instead of YUI's
     `ezcollapsiblemenu`;
   - the edit forms' toolbar runs on `exp::sticky`, and `fixed_toolbar.js`
-    stands aside.
+    stands aside;
+  - the sub-items table and eztags' children table run on `exp::datatable`;
+  - the relation upload ("Upload a file" of object relation fields) runs on
+    `exp::dialog` and `exp::upload`, and ezmultiupload's page on `exp::upload`;
+  - the date and date/time fields open `exp::datepicker`'s calendar;
+  - ezautosave's autosave and draft preview run on `exp::autosave`;
+  - asynchronous publishing's status page (`content/queued.tpl`, which loads
+    its keys itself) checks the status on `Exp.io`.
 
-  Each one behaves as before, and is tested by use in each design.
+  Each module behaves as before (the deliberate differences are on its page)
+  and is tested by use in each design. Each template keeps its YUI version for
+  when Exponential UI is not active.
+
+On the front end, the ezwebin and ezdemo date templates and ezwebin's
+autosave template load the modules they need themselves.
 
 With the menus and the toolbar, the admin's own jQuery code and that of the
 extensions it uses (eztags, ezoe, ezie, xrowmetadata, ezstarrating,
@@ -119,14 +135,19 @@ Migrate warning:
   quitting without saving);
 - the right menu and the edit page's object menu (collapsing, remembered per
   user);
-- the edit toolbar (fixed while scrolling, "go to the top").
+- the edit toolbar (fixed while scrolling, "go to the top");
+- since 1.0.0.1, compared with their YUI versions as well: the sub-items table
+  and eztags' children table, the relation upload and ezmultiupload, the date
+  and date/time fields, and ezautosave's autosave and preview.
 
 The list grows in [CHANGELOG.md](CHANGELOG.md).
 
 It also adds:
 
-- the packer keys `exp::core`, `exp::io`, `exp::compat`, `exp::collapse`,
-  `exp::sticky` (used where a template or the admin's list asks for them);
+- the packer keys `exp::core`, `exp::core::shared`, `exp::io`, `exp::compat`,
+  `exp::collapse`, `exp::sticky`, `exp::dialog`, `exp::upload`,
+  `exp::datatable`, `exp::datepicker`, `exp::autosave` (used where a template
+  or the admin's list asks for them);
 - the template operator `{exp_config()}`;
 - the module `expui` with the test page;
 - the design directory `extension/expui/design/standard` (files under `exp/`,

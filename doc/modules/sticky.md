@@ -28,10 +28,11 @@ It does what `fixed_toolbar.js` did, in the same order:
 > never reached. That was true of `fixed_toolbar.js` too: there the toolbar
 > stays where it is, and only the "go to the top" link appears.
 
-Your own toolbar
-----------------
+In your own templates
+---------------------
 
 ```html
+{exp_config()}
 {ezscript_require( array( 'exp::core', 'exp::sticky' ) )}
 ```
 
@@ -51,24 +52,45 @@ Exp.ready(function ($) {
 #my-toolbar.is-stuck { position: fixed; top: 0; left: 0; right: 0; z-index: 10; box-shadow: var(--exp-shadow-up); }
 ```
 
+> [!NOTE]
+> **Only need the toolbar to stay in view?** CSS can do it alone:
+> `position: sticky; top: 0`. Use `exp::sticky` when something else must know
+> the state (a class to read), or for the admin's behaviour.
+
+Options
+-------
+
 | Option | Default | |
 |---|---|---|
 | `form` | `'#editform, #ClassEdit'` | only on pages with this form |
 | `start` | `'#columns'` | the toolbar is fixed once this element's top scrolls under it |
 | `className` | `'controlbar-fixed'` | the class while fixed |
-| `toTop` | `'.scroll-to-top'` | the "go to the top" link |
+| `toTop` | `'.scroll-to-top'` | the "go to the top" link; a click on it hides it |
 | `scrollToStart` | `true` | on load: scroll to the start, focus the form's first text field |
 | `toTopOpacity` | `0.6` | the link's opacity when shown |
 | `fade` | `500` | the link's fade, in ms (0 with reduced motion) |
 
-The instance: `Exp.sticky.start(el, options)` returns it, and
-`$(el).data('expSticky')` holds it. It has `active` (`false` when the page has
-no such form), `formY` (the scroll position where it fixes) and `onScroll()`.
+The instance
+------------
 
-> [!NOTE]
-> **Only need the toolbar to stay in view?** CSS can do it alone:
-> `position: sticky; top: 0`. Use `exp::sticky` when something else must know
-> the state (a class to read), or for the admin's behaviour.
+`Exp.sticky.start(el, options)` returns it, and `$(el).data('expSticky')`
+holds it. It has `active` (`false` when the page has no such form), `formY`
+(the scroll position where it fixes) and `onScroll()`.
+
+`Exp.sticky.admin()` is `Exp.sticky.start('#controlbar-top')` with the
+defaults: what `exp::sticky` runs when the page is ready.
+
+Events
+------
+
+None: the class on the toolbar is the state other code reads.
+
+Keyboard and screen readers
+---------------------------
+
+Nothing changes in the toolbar itself: its buttons stay where Tab finds them.
+With `scrollToStart` the focus starts in the form's first text field, as with
+`fixed_toolbar.js`. The link's fade follows `prefers-reduced-motion`.
 
 From YUI
 --------
@@ -83,11 +105,11 @@ Exp.ready(function ($) { $('#controlbar-top').expSticky(); });
 Tests
 -----
 
-`design/standard/javascript/exp/test/sticky.test.js`, on `/expui/test`:
+`design/standard/javascript/exp/test/sticky.test.js`, 4 tests on
+`/expui/test`:
 
 - a page without the form;
-- fixing and unfixing around the start;
-- the "go to the top" link;
+- fixing and unfixing around the start, and the "go to the top" link;
 - scrolling to the start and focusing the first field;
 - `$.fn.expSticky`.
 

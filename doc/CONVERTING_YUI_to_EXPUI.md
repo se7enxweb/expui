@@ -72,8 +72,9 @@ grep -rn "ezjsc::yui" extension/myextension design/mydesign
 - `ezjsc::yui3` → `exp::core` (jQuery 4 and `Exp`)
 - `ezjsc::yui3io` → `exp::io` (server calls)
 - `ezjsc::yui2` → `exp::core`
-- Add `{exp_config()}` once per page, before the scripts (best in your
-  pagelayout's `<head>`).
+- Add `{exp_config()}` before the scripts, best once in your pagelayout's
+  `<head>` (the admin designs have it already). A template that needs its own
+  preferences or texts may add another; the core merges them.
 
 In `design.ini` lists (`JavaScriptList[]`, `BackendJavaScriptList[]`,
 `FrontendJavaScriptList[]`) the same keys are replaced the same way:
@@ -252,10 +253,31 @@ Exp.io.form(form[0] || form).then(function (response) { /* … */ });
 
 **Waiting for something on the server** (the asynchronous publishing pattern)
 
+YUI code did this with `Y.io.ez()` and `Y.later()` calling itself again. Before:
+
+```js
+function check() {
+    Y.io.ez('mysite::status::' + jobId, { method: 'GET', on: { success: function (id, r) {
+        if (r.responseJSON.content.done) { finished(); } else { Y.later(2000, null, check); }
+    } } });
+}
+check();
+```
+
+After:
+
 ```js
 Exp.io.poll('mysite::status', [jobId], { every: 2000, until: function (s) { return s.done; } })
     .then(function (s) { /* finished */ });
 ```
+
+> [!NOTE]
+> **Your own retry rules?** Exponential's asynchronous publishing status page
+> (`content/queued.tpl`, `ezasynchronouspublishing.js`) keeps its own timing,
+> failure count and messages, so it calls `Exp.io.call()` itself (GET, then a
+> `setTimeout()` for the next check) when Exponential UI is there, and its
+> YUI version otherwise. Use `Exp.io.poll()` when "ask every n ms until done"
+> is all you need.
 
 **`$.ez()` code** keeps working: load `exp::compat` and it runs on the new calls
 underneath. Move it to `Exp.io.call()` when you touch the file anyway:
@@ -333,14 +355,99 @@ Widgets (`DataTable`, `Calendar`, `Dialog`, `TabView`, `Slider`, drag and drop,
 |---|---|
 | `Y.eZ.CollapsibleMenu` (`ezcollapsiblemenu`) | **`exp::collapse`, available**: [modules/collapse.md](modules/collapse.md). Same configuration; change the constructor |
 | `fixed_toolbar.js` (the edit form's toolbar) | **`exp::sticky`, available**: [modules/sticky.md](modules/sticky.md). Nothing to change in admin designs; it runs by itself |
-| `YAHOO.widget.DataTable`, `Paginator`, `CellEditor` | `exp::datatable` |
-| `YAHOO.widget.Calendar`, `CalendarGroup` | `exp::datepicker` (native date input, your fields unchanged) |
-| `YAHOO.widget.Dialog`, `SimpleDialog`, `Panel`, `ezmodalwindow` | `exp::dialog` (native `<dialog>`) |
-| `YAHOO.widget.TabView` | `exp::tabs` |
-| `YAHOO.widget.Slider` | `exp::timeline` / `<input type=range>` |
-| `YAHOO.util.DD`, `DDProxy`, `DDTarget`, YUI 3 `dd-*` | `exp::sortable` |
-| `YAHOO.widget.Button` | a plain `<button>` styled with the admin's classes |
-| `Y.Uploader`, `ezajaxuploader`, `ezmultiupload` | `exp::upload` |
+| `YAHOO.widget.DataTable`, `Paginator`, `TextboxCellEditor`, `DataSource`, `XHRDataSource` | **`exp::datatable`, available**: [modules/datatable.md](modules/datatable.md). Columns, source, paging, selection, menus and Table options in one call; see below |
+| `YAHOO.widget.Dialog`, `SimpleDialog`, `Panel`, `Y.eZ.ModalWindow` (`ezmodalwindow`) | **`exp::dialog`, available**: [modules/dialog.md](modules/dialog.md). The native `<dialog>`; every call returns a Promise; see below |
+| `Y.Uploader`, the `io-upload-iframe` step of `ezajaxuploader`, `ezmultiupload` | **`exp::upload`, available**: [modules/upload.md](modules/upload.md). One request per file, the same fields; see below |
+| `YAHOO.widget.Calendar`, `ezdatepicker.js` | **`exp::datepicker`, available**: [modules/datepicker.md](modules/datepicker.md). The standard date templates need nothing; your fields stay as they are |
+| `Y.eZ.AutoSubmit` (`ezautosubmit`), `Y.eZ.ContentPreview` (`ezcontentpreview`) | **`exp::autosave`, available**: [modules/autosave.md](modules/autosave.md). Same configuration; change the constructors |
+| `YAHOO.widget.Button` (a menu button) | the `actions` of `exp::datatable`, or a plain `<button>` styled with the admin's classes |
+| `YAHOO.util.KeyListener` | `Exp.keys.bind()` (step 4) |
+| `YAHOO.widget.TabView` | `exp::tabs` (planned) |
+| `YAHOO.widget.Slider`, `CalendarGroup` (ezflow's timeline) | `exp::timeline` (planned) / `<input type=range>` |
+| `YAHOO.util.DD`, `DDProxy`, `DDTarget`, YUI 3 `dd-*` | `exp::sortable` (planned) |
+
+### A data table
+
+**Before** (YUI 2)
+
+```js
+var ds = new YAHOO.util.XHRDataSource(url);
+ds.responseSchema = { resultsList: 'content.list', metaFields: { total: 'content.total_count' } };
+var dt = new YAHOO.widget.DataTable('my-table', [{ key: 'name', label: 'Name', sortable: true }], ds,
+    { dynamicData: true, paginator: new YAHOO.widget.Paginator({ rowsPerPage: 25 }) });
+```
+
+**After**
+
+```js
+$('#my-table').expDataTable({
+    columns: [{ key: 'name', label: 'Name', sortable: true }],
+    source: { url: function (s) { return url + '?offset=' + s.offset + '&limit=' + s.limit; },
+              parse: function (json) { return { rows: json.content.list, total: json.content.total_count }; } },
+    paging: { limit: 25 }
+});
+```
+
+The element can also be a `<table>` already in the page:
+`<table data-exp-datatable>` sorts and pages its own rows.
+
+### A dialog
+
+**Before** (YUI 3, the admin's modal window)
+
+```js
+var win = new Y.eZ.ModalWindow({ window: '#my-window', width: 650 });
+win.setTitle('Rename'); win.setContent(html); win.open();
+```
+
+**After**
+
+```js
+var d = Exp.dialog.create({ title: 'Rename', width: 650 });
+d.setContent(html);
+d.open().then(function (value) { /* the value it was closed with, or null */ });
+```
+
+A question becomes one line: `Exp.dialog.confirm('Remove?').then(function (ok) { … })`.
+No window markup in the template and no overlay mask: the browser does both.
+
+### An upload
+
+**Before** (YUI 3 `io-upload-iframe`)
+
+```js
+Y.io(url, { method: 'POST', form: { id: form, upload: true }, on: { complete: done } });
+```
+
+**After**
+
+```js
+$(form).find('input[type=file]').expUpload({ url: url, form: form, auto: false, responseType: 'text', onDone: done });
+// start it from the form's own button: $(input).expUpload('start')
+```
+
+The same fields in the same order, with a progress bar and Cancel.
+
+### Autosave and preview
+
+Replace `new Y.eZ.AutoSubmit(conf)` by `new Exp.autosave.AutoSubmit(conf)` and
+`new Y.eZ.ContentPreview(conf)` by `new Exp.autosave.Preview(conf)`; the
+configuration and the events stay. `Y.fire('autosubmit:forcesave')` becomes
+`Exp.emit('autosubmit:forcesave')`.
+
+### Keep the YUI version as the fallback
+
+Every template Exponential moved keeps both: the Exponential UI branch when it
+is there, the untouched YUI code otherwise. Do the same while your site may run
+without Exponential UI:
+
+```js
+if (window.Exp && window.Exp.dialog) {
+    // Exponential UI
+} else {
+    // the YUI code, as it was
+}
+```
 
 ---
 

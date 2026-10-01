@@ -1,6 +1,97 @@
 Changelog
 =========
 
+1.0.0.1 (2026-10-01)
+--------------------
+
+Phase 3 of the [roadmap](ROADMAP.md), the admin's content. Five modules take
+over the YUI widgets the admin uses for its content: the sub-items and tags
+tables, dialogs, uploads, date fields, and autosave with its preview. Each one
+was compared with its YUI version in the admin, admin2 and admin3 designs, on
+Exponential Velocity and on PHP-FPM, and each template keeps its YUI version as
+the fallback when Exponential UI is not active.
+
+Added
+- `exp::dialog`: `Exp.dialog.open()`, `confirm()`, `alert()`, `form()`,
+  `create()`, `current()`, `closeAll()` and `data-exp-dialog`, on the native
+  `<dialog>`: the page behind inert, the focus kept inside and given back,
+  Escape and the close button answering `null`, HTML content inserted without
+  running its scripts unless asked. With `exp/dialog.css`.
+  [modules/dialog.md](modules/dialog.md)
+- `exp::upload`: `$.fn.expUpload`, `Exp.upload` and `data-exp-upload`: one
+  request per file with a progress bar and Cancel each, several files at once,
+  drop zones, size and type checks, a form's fields posted in their order with
+  the file. With `exp/upload.css`. [modules/upload.md](modules/upload.md)
+- `exp::datatable`: `$.fn.expDataTable`, `Exp.datatable` and
+  `data-exp-datatable`: sorting, paging with YUI Paginator's rules, a request
+  cache, selection with shift ranges, column toggling saved by callback or
+  preference, inline editing, ARIA menu buttons, the "Table options" dialog, a
+  filter, the keyboard in the rows. Escape on a menu button closes a menu
+  opened with the mouse, and a table wider than its column scrolls sideways
+  inside `.exp-dt-scroll` instead of running over the next column. With
+  `exp/datatable.css`. [modules/datatable.md](modules/datatable.md)
+- `exp::datepicker`: `$.fn.expDatePicker`, `Exp.datepicker` and
+  `window.showDatePicker()`: the calendar of the date and date/time fields,
+  filling them as `ezdatepicker.js` did, opening on the date they hold,
+  starting the week on the siteaccess's first day, in the page's language,
+  usable with the keyboard. With `exp/datepicker.css`.
+  [modules/datepicker.md](modules/datepicker.md)
+- `exp::autosave`: `Exp.autosave.AutoSubmit`, `Exp.autosave.Preview`,
+  `$.fn.expAutosave` and `$.fn.expPreview`, with the configuration and events
+  of `Y.eZ.AutoSubmit` and `Y.eZ.ContentPreview`. TinyMCE saves into the form
+  before each save is read, so a draft is no longer saved twice after the
+  editor rewrote its textarea. [modules/autosave.md](modules/autosave.md)
+- 38 more interface texts in `[ExpUI] Strings` (45 in all), translated into
+  German.
+- The browser tests of the five modules on `/expui/test` (dialog 15, upload
+  10, datatable 25, datepicker 10, autosave 8): 110 tests in all.
+
+Updated
+- The admin designs (admin, admin2, admin3) load `exp::dialog`,
+  `exp::upload`, `exp::datatable`, `exp::datepicker` and `exp::autosave`
+  through `BackendJavaScriptList`, and the modules' stylesheets with
+  `exp/core.css` through `BackendCSSFileList`.
+- `expUIServerFunctions::MODULES` lists the module packer keys; each one adds
+  its file to the pack. The PHPUnit suite checks every module key, its cache
+  time and that the admin loads it and its stylesheets (39 tests).
+- `exp::datatable`'s `paging.alwaysVisible: false` hides the pagers while
+  everything fits on one page, as YUI Paginator's option did; it was accepted
+  but had no effect.
+- `exp::datepicker`'s own calendar button shows an SVG icon instead of an
+  emoji, and `exp::autosave`'s default error text reads "An error occurred".
+
+Moved to Exponential UI with it (outside this extension; they ship with their
+own packages)
+- The admin's sub-items table (`children.tpl`, `children_detailed.tpl`, with
+  `ezajaxsubitems_expdatatable.js`) and eztags' children table
+  (`$.fn.eZTagsChildrenExp`) on `exp::datatable`.
+- The "Upload a file" of object relation fields
+  (`ezobjectrelation_ajaxuploader.tpl`, `ezobjectrelationlist_ajaxuploader.tpl`,
+  with `expajaxuploader.js`) on `exp::dialog` and `exp::upload`, and
+  ezmultiupload's upload page on `exp::upload`, with its messages in
+  `Exp.dialog.alert()`.
+- The date and date/time fields of admin, admin2, admin3, ezwebin and ezdemo
+  on `exp::datepicker`.
+- ezautosave's admin and ezwebin templates on `exp::autosave`.
+- Asynchronous publishing's status page (`content/queued.tpl` with
+  `ezasynchronouspublishing.js`) checks the publishing status on `Exp.io`, with
+  the same server call, messages and timing as its YUI version.
+- The layout editor and the layouts admin pages run on ezjscore's jQuery 4 too,
+  so the whole admin now runs on one jQuery 4.
+
+Notes
+- YUI stays loaded: every template above still has its YUI version, used when
+  Exponential UI is not active.
+- Deliberate differences from YUI are listed on each module's page: the
+  uploads (a row per file, a drop zone, the next files sent after Cancel, the
+  summary written when the last file is in), the calendar (it opens on the date
+  the fields hold and starts the week on the siteaccess's first day), autosave
+  (no second save after TinyMCE rewrote the textarea).
+- Upgrading from 1.0.0.0: clear the `ezjscore-packer`, `template`,
+  `template-block` and `ini` caches together ([INSTALL.md](INSTALL.md#upgrade)),
+  so the admin's script list and its cached page heads name the new packed
+  files.
+
 1.0.0.0 (2026-10-01)
 --------------------
 

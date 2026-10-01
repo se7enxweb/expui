@@ -11,7 +11,7 @@ After [installing](INSTALL.md), open the admin and go to **`/expui/test`**
 (for example `https://example.com/admin/expui/test`). The page runs every unit
 test of the API on a real admin page. It should end with:
 
-> **43 passed, 0 failed**
+> **110 passed, 0 failed**
 
 If it does not, the failing test's name says what is wrong; see the
 [FAQ](FAQ.md).
@@ -28,8 +28,10 @@ In any template — a pagelayout, a node view, a module view — put these two l
 ```
 
 - `{exp_config()}` writes the page's configuration (addresses, siteaccess,
-  locale, translated texts) as a small JSON block. Put it once per page, before
-  the scripts (in the `<head>` of your pagelayout is ideal).
+  locale, translated texts) as a small JSON block. Put it before the scripts
+  (in the `<head>` of your pagelayout is ideal; the admin designs have it
+  already). A template may add another for its own preferences or texts: the
+  blocks are merged.
 - `exp::core` loads jQuery 4 and the `Exp` core; `exp::io` adds the server calls.
 
 When the page already has jQuery 4 (the admin does, with expui activated before
@@ -134,11 +136,32 @@ Exp.i18n('%count items', { '%count': 3 });  // "3 items"
 The texts are translated in the `extension/expui` context; add them to your
 extension's translation files.
 
+9. Use a ready-made module
+--------------------------
+
+The modules do the bigger jobs for you. A question before a button of your
+form submits it, without a line of script (OK submits the form with that
+button, Cancel does nothing):
+
+```html
+{ezscript_require( array( 'exp::core', 'exp::dialog' ) )}
+{ezcss_require( array( 'exp/core.css', 'exp/dialog.css' ) )}
+
+<input type="submit" class="button" name="RemoveButton" value="Remove"
+       data-exp-dialog='{"confirm": "Remove the selected items?", "danger": true}' />
+```
+
+On admin pages every module is loaded already. The others: tables
+(`exp::datatable`), uploads (`exp::upload`), a calendar for date fields
+(`exp::datepicker`), autosave (`exp::autosave`), collapsible panels
+(`exp::collapse`) and a sticky toolbar (`exp::sticky`), each with its page in
+[`modules/`](MODULES.md).
+
 Next
 ----
 
 - **[Using Exponential UI](USEING_EXPUI.md)**, the book: every feature with
   examples, writing your own server functions, styling, testing and recipes.
 - The full [API reference](API.md).
-- [Modules](MODULES.md): the widgets that replace YUI, and when each lands.
+- [Modules](MODULES.md): the modules available now, and the ones still to come.
 - Moving old code: [CONVERTING_YUI_to_EXPUI.md](CONVERTING_YUI_to_EXPUI.md).

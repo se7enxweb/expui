@@ -5,7 +5,7 @@ Using Exponential UI
 jQuery 4 and the `Exp` API — from your first line of code to your own
 modules, server calls, styles and tests.*
 
-Version 1.0.0.0 · GNU General Public License v2.0 (or any later version) ·
+Version 1.0.0.1 · GNU General Public License v2.0 (or any later version) ·
 [github.com/se7enxweb/expui](https://github.com/se7enxweb/expui)
 
 ---
@@ -83,9 +83,14 @@ a chapter take you further when you want to.
 **Part 8 — Ready-made modules**
 31. [Panels that collapse: `exp::collapse`](#31-panels-that-collapse-expcollapse)
 32. [A toolbar that stays in view: `exp::sticky`](#32-a-toolbar-that-stays-in-view-expsticky)
+33. [Asking and telling: `exp::dialog`](#33-asking-and-telling-expdialog)
+34. [Uploading files: `exp::upload`](#34-uploading-files-expupload)
+35. [Tables that sort and page: `exp::datatable`](#35-tables-that-sort-and-page-expdatatable)
+36. [Picking a date: `exp::datepicker`](#36-picking-a-date-expdatepicker)
+37. [Drafts that save themselves: `exp::autosave`](#37-drafts-that-save-themselves-expautosave)
 
 **Part 9 — Looking ahead**
-33. [Modules that are coming](#33-modules-that-are-coming)
+38. [Modules that are coming](#38-modules-that-are-coming)
 
 **Appendices**
 - [A. Quick reference card](#a-quick-reference-card)
@@ -144,7 +149,7 @@ php bin/php/ezcache.php --clear-all
 ```
 
 Open **`/expui/test`** in the admin. It runs every test of the API on a real
-page and should end with **43 passed, 0 failed**.
+page and should end with **110 passed, 0 failed**.
 
 > [!NOTE]
 > **Why "before ezjscore"?** When two extensions set the same setting, the one
@@ -240,6 +245,14 @@ The packer keys you can ask for:
 | `exp::compat` | `$.ez()` on top of `Exp.io`, for older code | `exp::io` |
 | `exp::collapse` | panels and menus that collapse, remembered per user (chapter 31) | `exp::core` |
 | `exp::sticky` | a toolbar that stays in view while scrolling (chapter 32) | `exp::core` |
+| `exp::dialog` | dialogs, questions and messages on the native `<dialog>` (chapter 33) | `exp::core`; `exp::io` for form dialogs |
+| `exp::upload` | uploads with progress, Cancel and drop zones (chapter 34) | `exp::core` (`exp::io` recommended) |
+| `exp::datatable` | sortable, paged tables with selection and menus (chapter 35) | `exp::core`; `exp::io` for server functions |
+| `exp::datepicker` | a calendar for date fields (chapter 36) | `exp::core` |
+| `exp::autosave` | drafts saved while editing, and their preview (chapter 37) | `exp::core`; `exp::collapse` for the preview |
+
+Each module has its stylesheet next to `exp/core.css`: `exp/dialog.css`,
+`exp/upload.css`, `exp/datatable.css`, `exp/datepicker.css`.
 
 And the stylesheet with the design tokens:
 
@@ -273,8 +286,9 @@ page's `<head>`. `ezscript` writes them right where it stands. Both work.
 
 > [!NOTE]
 > **On admin pages the core is already there.** Every admin design loads
-> `exp::core`, `exp::collapse` and `exp::sticky` by itself. Asking for
-> `exp::core` again does no harm: the core runs once per page.
+> the core, `exp::io` and every module (chapters 31 to 37), with their
+> stylesheets, by itself. Asking for `exp::core` again does no harm: the core
+> runs once per page.
 
 5. `Exp.$`: your jQuery
 ----------------------
@@ -403,7 +417,7 @@ Exp.config.call          // "/admin/ezjscore/call/"  where server calls go
 Exp.config.prefsUrl      // "/admin/user/preferences"
 Exp.config.locale        // { code: "eng-GB", http: "en-GB", firstDay: 1 }
 Exp.config.jquery        // "4.0.0"
-Exp.version              // "1.0.0.0"
+Exp.version              // "1.0.0.1"
 ```
 
 `locale.firstDay` is `1` when weeks start on Monday, `0` for Sunday: useful for
@@ -828,6 +842,14 @@ Exp.io.poll('ezpublishingqueue::status', [objectId, version], {
 > `deferred` or `finished`, and when finished also the new node's address
 > (`node_uri`).
 
+> [!NOTE]
+> **The status page itself runs on `Exp.io` too.** With Exponential UI
+> active, `content/queued.tpl` and `ezasynchronouspublishing.js` check the
+> status with `Exp.io.call()` instead of YUI's `io-ez`. They keep their own
+> rules (how long to wait, how many failures to allow, which message to show),
+> so they call again with `setTimeout()` rather than `Exp.io.poll()`: a fine
+> example of when the building block suits better than the shortcut.
+
 20. Timeouts and cancelling
 ---------------------------
 
@@ -937,7 +959,7 @@ Part 4 — Looks
 ```
 
 > [!NOTE]
-> **Every module coming in later releases uses these tokens.** Change the
+> **Every module uses these tokens.** Change the
 > accent once, and the dialogs, tables and date pickers follow. MDN explains
 > [custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)
 > from the start.
@@ -997,6 +1019,11 @@ The short version:
 | `Y.JSON.parse(s)` | `JSON.parse(s)` |
 | YUI 2 `Dom.addClass(el, 'x')` | `$(el).addClass('x')` |
 | YUI 2 `Event.onDOMReady(fn)` | `Exp.ready(fn)` |
+| `new Y.eZ.ModalWindow(…)`, YUI 2 `SimpleDialog` | `Exp.dialog.create(…)`, `Exp.dialog.confirm(…)` (chapter 33) |
+| `Y.Uploader`, `io-upload-iframe` | `$(el).expUpload(…)` (chapter 34) |
+| YUI 2 `DataTable` and `Paginator` | `$(el).expDataTable(…)` (chapter 35) |
+| YUI 2 `Calendar`, `ezdatepicker.js` | nothing for the standard date templates; `$(fieldset).expDatePicker(…)` (chapter 36) |
+| `new Y.eZ.AutoSubmit(…)`, `new Y.eZ.ContentPreview(…)` | `new Exp.autosave.AutoSubmit(…)`, `new Exp.autosave.Preview(…)` (chapter 37) |
 
 The full guide, written for every level of experience, with commands to find
 what needs changing and before/after examples for each YUI feature, is
@@ -1117,9 +1144,15 @@ What the API does for you:
   `<script>` element.
 - **No `eval`**, no inline event handlers in the API: it works under a strict
   [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
+- **The modules write text as text.** Dialog questions, titles and button
+  labels, table cells, upload rows: all go in with `.text()`. HTML a dialog
+  loads is inserted without running its scripts (unless `scripts: true`).
+- **Uploads and drafts carry the form token**, like every other POST.
 
 What is your job:
 
+- **Check uploads on the server.** `maxSize` and `accept` only spare the user
+  a wait; the server checks every file it receives.
 - **Put text in as text.** `$el.text(value)` for anything that came from a
   user or the server. Use `.html()` only for HTML you know is safe, such as a
   template your server function rendered.
@@ -1357,35 +1390,376 @@ looks like.
 > other code reads it: ezautosave's preview moves itself when the admin's
 > toolbar is fixed. All options are in [modules/sticky.md](modules/sticky.md).
 
+33. Asking and telling: `exp::dialog`
+-------------------------------------
+
+"Remove these three items?" deserves a real question, not the browser's grey
+`confirm()` box. `exp::dialog` asks it in a dialog that looks like your site,
+speaks the page's language and works with the keyboard:
+
+```html
+{exp_config()}
+{ezscript_require( array( 'exp::core', 'exp::io', 'exp::dialog' ) )}
+{ezcss_require( array( 'exp/core.css', 'exp/dialog.css' ) )}
+
+<button type="button" id="discard">Discard the draft</button>
+
+<script>
+{literal}
+Exp.ready(function ($) {
+    $('#discard').on('click', function () {
+        Exp.dialog.confirm('Discard the draft?', { okLabel: 'Discard', cancelLabel: 'Keep editing', danger: true })
+            .then(function (ok) {
+                if (ok) { $('#discard-form').trigger('submit'); }
+            });
+    });
+});
+{/literal}
+</script>
+```
+
+Click the button. The page behind dims and cannot be clicked, the focus is on
+"Keep editing" (the safe answer, because `danger` is set), and whatever you
+choose, the focus comes back to the button. Escape counts as "no".
+
+The answer arrives as a Promise, so the code reads in the order things happen.
+There are four ways to open a dialog:
+
+| Call | For | Resolves with |
+|---|---|---|
+| `Exp.dialog.confirm(text, options)` | a yes-or-no question | `true` or `false` |
+| `Exp.dialog.alert(text, options)` | a message to acknowledge | `undefined` |
+| `Exp.dialog.open(options)` | any content, your own buttons | the value of the button pressed, or `null` |
+| `Exp.dialog.form(url, options)` | a form from the server, posted without leaving the page | the server's answer, or `null` |
+
+Your own content and buttons:
+
+```js
+Exp.dialog.open({
+    title: 'Choose a size',
+    content: '<p>The small version loads faster.</p>',
+    buttons: [
+        { label: 'Small', value: 's' },
+        { label: 'Large', value: 'l', primary: true }
+    ]
+}).then(function (size) {
+    if (size) { $('#size').val(size); }      // null when the dialog was dismissed
+});
+```
+
+A form from the server, posted with its fields, its files and the form token:
+
+```js
+Exp.dialog.form(Exp.io.url('myext/rename/' + id), { title: 'Rename' }).then(function (answer) {
+    if (answer) { location.reload(); }
+});
+```
+
+And no script at all, straight from the template: OK submits the form with
+that very button, exactly as a click would have.
+
+```html
+<input type="submit" class="button" name="RemoveButton" value="Remove"
+       data-exp-dialog='{"confirm": "Remove the selected items?", "danger": true}' />
+```
+
+> [!NOTE]
+> **The browser does the hard part.** The dialog is the native
+> [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
+> opened with [`showModal()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal):
+> the page behind becomes inert, the dialog sits in the top layer above
+> everything, and the dim background is plain CSS
+> ([`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/::backdrop)).
+> No overlay mask, no z-index battles. Exponential UI adds what the element
+> does not: Tab staying inside, the focus going back, the Promise, the
+> translated close button.
+
+> [!NOTE]
+> **HTML from the server is shown, not run.** Content you load with `url` or
+> pass as a string is inserted without running its `<script>` elements, as the
+> old modal window did. A dialog that really needs them says `scripts: true`.
+> The text of `confirm()` and `alert()` is always written as text.
+
+The behaviour follows the WAI-ARIA pattern for
+[modal dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), and
+questions and messages are
+[alert dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/), read
+out as soon as they open. Every option, the dialog's own methods and the move
+from YUI: [modules/dialog.md](modules/dialog.md).
+
+34. Uploading files: `exp::upload`
+----------------------------------
+
+Choosing five pictures and watching them go up one by one, each with its own
+bar and its own Cancel, is how uploading should feel. One element is enough:
+
+```html
+{exp_config()}
+{ezscript_require( array( 'exp::core', 'exp::io', 'exp::upload' ) )}
+{ezcss_require( array( 'exp/core.css', 'exp/upload.css' ) )}
+
+<div data-exp-upload='{ldelim}"url": "{'myext/upload'|ezurl( 'no' )}", "multiple": true, "drop": true{rdelim}'></div>
+```
+
+The element gets a "Select files" button and "or drop them here". Each file
+becomes a row: its name, its size, a progress bar, a status and Cancel. Each is
+sent on its own, as a normal `multipart/form-data` POST with the field `file`
+and the form token, so your module view reads it as it would read a form.
+
+From code, with the answer of each file:
+
+```js
+Exp.ready(function ($) {
+    $('#photos').expUpload({
+        url: Exp.io.url('myext/upload'),
+        name: 'Filedata',                  // the field your view reads
+        multiple: true,
+        drop: true,
+        accept: 'image/*',
+        maxSize: 10 * 1024 * 1024,         // larger files are refused before anything is sent
+        data: { UploadButton: 'Upload' },  // more fields with every file
+        onDone: function (response, file) { $('#done').append($('<li>').text(file.name)); }
+    });
+    $('#photos').on('exp:upload:complete', function (e, summary) {
+        if (!summary.failed) { $('#status').text(summary.done + ' files uploaded'); }
+    });
+});
+```
+
+> [!NOTE]
+> **Already have a form with a file field?** Give that `<input type="file">`
+> to `expUpload` with `form: '#my-form'` and `auto: false`: the form's fields go
+> with the file, in the form's order, and your own button starts it with
+> `$('#my-file').expUpload('start')`. That is how the admin's "Upload a file"
+> of relation fields works now.
+
+> [!NOTE]
+> **`maxSize` and `accept` are a courtesy, not a guard.** They spare the user a
+> long wait for a file the server would refuse anyway. The server still checks
+> every file it receives: its size, its type and the user's rights.
+
+The progress bars are real
+[`<progress>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress)
+elements fed by the request's
+[upload events](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload),
+the chooser is the browser's own
+[file input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file)
+inside a label, and the drop zone uses the
+[drag and drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop).
+The list is a live region, so a screen reader hears "Uploading 40%" and
+"Done". Every option, method and event: [modules/upload.md](modules/upload.md).
+
+35. Tables that sort and page: `exp::datatable`
+-----------------------------------------------
+
+The admin's sub-items table is the busiest widget Exponential has: sorting,
+pages, checkboxes, menus, a priority you edit in place. `exp::datatable` is
+what it runs on now, and you can use it for your own lists.
+
+The quickest start is a table you already have:
+
+```html
+{ezscript_require( array( 'exp::core', 'exp::io', 'exp::datatable' ) )}
+{ezcss_require( array( 'exp/core.css', 'exp/datatable.css' ) )}
+
+<table data-exp-datatable='{"paging": {"limit": 20}}'>
+    <thead><tr><th data-key="name" data-sortable>Name</th><th data-key="size" data-sortable>Size</th></tr></thead>
+    <tbody>
+        <tr><td><a href="/a">a.pdf</a></td><td data-value="2048">2 kB</td></tr>
+        <tr><td><a href="/b">b.pdf</a></td><td data-value="512">512 B</td></tr>
+    </tbody>
+</table>
+```
+
+The headers become sort buttons, the rows are paged twenty at a time, and
+`data-value` is what a cell sorts by. Without JavaScript it is still the table
+it was.
+
+Rows from the server, straight from an ezjscore server function:
+
+```js
+Exp.ready(function ($) {
+    $('#children').expDataTable({
+        columns: [
+            { key: 'name', label: 'Name', sortable: true },
+            { key: 'class_name', label: 'Type' },
+            { key: 'priority', label: 'Priority', sortable: true }
+        ],
+        source: {
+            fn: 'ezjscnode::subtree',
+            args: function (s) { return [2, s.limit, s.offset]; },
+            parse: function (c) { return { rows: c.list, total: c.total_count }; },
+            cache: 20                       // a page seen before is not asked for again
+        },
+        paging: { limit: 25 },
+        select: { name: 'SelectedIDArray[]', value: function (row) { return row.node_id; } }
+    });
+    $('#children').on('exp:datatable:select', function (e, d) { $('#remove').prop('disabled', !d.count); });
+});
+```
+
+`args` gets the table's state (`offset`, `limit`, `sort`, `filter`, `page`)
+each time it loads, so the server is asked for exactly the page shown. The
+selection column posts its checkboxes with the surrounding form, like any
+other field.
+
+> [!NOTE]
+> **Toolbar menus come with it.** `actions: [{ id: 'my-more', label: 'More
+> actions', menu: [...], onSelect: fn }]` adds menu buttons above the table;
+> `tableOptions` adds the admin's "Table options" dialog (rows per page,
+> visible columns); `inlineEdit` saves a cell edited in place. All of it is
+> reachable with the keyboard, and Escape closes a menu even when you opened
+> it with the mouse.
+
+> [!NOTE]
+> **Wide tables stay in their column.** The table sits in a scrolling
+> wrapper, so at a large zoom or in a narrow window it scrolls sideways inside
+> its column instead of running over the next one.
+
+The menu buttons follow the WAI-ARIA
+[menu button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/)
+(arrow keys, Home, End, type-ahead), the headers say how the table is sorted
+with [`aria-sort`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-sort)
+as in the [sortable table example](https://www.w3.org/WAI/ARIA/apg/patterns/table/examples/sortable-table/),
+and the arrow keys move between the rows' controls in the spirit of the
+[grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/). Every option,
+source, event and the admin's tables before and after:
+[modules/datatable.md](modules/datatable.md).
+
+36. Picking a date: `exp::datepicker`
+-------------------------------------
+
+Exponential's date fields are three small inputs, year, month and day, with a
+calendar icon beside them. In the admin, ezwebin and ezdemo the icon now opens
+this calendar, and nothing in the templates had to change.
+
+For date fields of your own:
+
+```html
+{ezscript_require( array( 'exp::core', 'exp::datepicker' ) )}
+{ezcss_require( array( 'exp/core.css', 'exp/datepicker.css' ) )}
+
+<fieldset id="event-start">
+    <input name="start_year" size="5"> <input name="start_month" size="3"> <input name="start_day" size="3">
+    <input name="start_hour" size="3"> <input name="start_minute" size="3">
+</fieldset>
+
+<script>
+{literal}
+Exp.ready(function ($) {
+    $('#event-start').expDatePicker({
+        fields: { year: '[name=start_year]', month: '[name=start_month]', day: '[name=start_day]',
+                  hour: '[name=start_hour]', minute: '[name=start_minute]' },
+        min: '2026-01-01'
+    });
+});
+{/literal}
+</script>
+```
+
+A "Choose a date" button appears after the day field. Pick a day: the three
+fields are filled (as numbers, `3` rather than `03`, just as before), an empty
+time becomes 12:00, and the focus goes to the year field.
+
+> [!NOTE]
+> **It speaks the siteaccess's language.** Month and day names come from the
+> browser's [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat)
+> in the page's locale, and the week starts on the locale's first day
+> (`Exp.config.locale.firstDay`, chapter 8). A German admin sees "Oktober 2026"
+> and a week that starts on Monday.
+
+> [!NOTE]
+> **The keyboard works everywhere.** The arrow keys move by a day or a week,
+> Page Up and Page Down by a month (with Shift, a year), Home and End to the
+> week's ends, Enter or Space chooses, Escape closes and gives the focus back. The
+> calendar icon of the date templates is reachable with Tab, too.
+
+The keys follow the WAI-ARIA
+[date picker dialog example](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/).
+Options, `Exp.datepicker.open()` and the events:
+[modules/datepicker.md](modules/datepicker.md).
+
+37. Drafts that save themselves: `exp::autosave`
+------------------------------------------------
+
+Nobody should lose half an hour of writing to a closed tab. With the ezautosave
+extension active, the admin's edit page saves the draft by itself, every few
+minutes and whenever you leave a field, and shows "Draft saved at …" in the
+toolbar. With Exponential UI that now runs on `exp::autosave`; the settings
+in `autosave.ini` stay the same.
+
+For a form of your own:
+
+```js
+Exp.ready(function ($) {
+    var as = new Exp.autosave.AutoSubmit({
+        form: '#my-form',
+        action: Exp.io.url('ezjscore/call/myext::savedraft'),   // gets the form's fields and files
+        interval: 120,                  // seconds between two saves
+        trackUserInput: true,           // also when a field loses the focus
+        ignoreClass: 'no-autosave'      // these fields do not count as a change
+    });
+    as.on('beforesave', function () { $('#status').text('Saving…'); });
+    as.on('success', function (e) { $('#status').text('Saved'); });
+    as.on('error', function (e) { $('#status').text('Not saved'); });
+    as.start();
+});
+```
+
+The answer of `action` must be JSON; an `error_text` in it counts as an error.
+A save only happens when the form changed since the last one, and the form's
+own submit stops the timer.
+
+> [!NOTE]
+> **Why the second save went away.** The rich text editor (TinyMCE) keeps its
+> text in its own window and writes it back into the form's textarea, often a
+> little rewritten. The YUI version compared the form before the editor had
+> written, so the next round saw a "change" and saved the same draft again.
+> `exp::autosave` asks the editor to save into the form first
+> (`beforeSerialize`), so what is compared is what is shown.
+
+> [!NOTE]
+> **"Save now" from anywhere.** `Exp.emit('autosubmit:forcesave')` saves every
+> autosave on the page at once. The draft preview does that when it opens
+> while there are unsaved changes, so you always preview what you wrote.
+
+The preview is `new Exp.autosave.Preview({ texts, topPosition })`, opened and
+closed on `exp::collapse` (chapter 31). Every option and event:
+[modules/autosave.md](modules/autosave.md).
+
 ---
 
 Part 9 — Looking ahead
 ======================
 
-33. Modules that are coming
+38. Modules that are coming
 ---------------------------
 
 Exponential UI grows release by release until every YUI feature has its
-replacement. What is planned, with the API it will have:
+replacement. With 1.0.0.1 the admin's content (tables, dialogs, uploads, date
+fields, autosave) runs on it; ezflow is next. What is planned, with the API it
+will have:
 
 | Module | For | API |
 |---|---|---|
-| `exp::dialog` | dialogs, confirmations, alerts on the native `<dialog>` | `Exp.dialog.open()`, `.confirm()`, `.alert()` |
-| `exp::datatable` | sortable, paged tables (sub-items, tags, newsletters) | `$(table).expDataTable({...})` |
-| `exp::datepicker` | date and time fields | `$(fieldset).expDatePicker({fields, time})` |
-| `exp::upload` | uploads with drag and drop | `$(el).expUpload({url, multiple, drop})` |
-| `exp::autosave` | saving drafts while editing | `$(form).expAutosave()` |
-| `exp::sortable`, `exp::tabs`, `exp::timeline`, `exp::gallery`, `exp::carousel`, `exp::rating`, `exp::flyout`, `exp::toggle` | ezflow, the site designs, star ratings and more | see [MODULES.md](MODULES.md) |
+| `exp::sortable` | drag and drop sorting (ezflow blocks, the website toolbar) | `$(list).expSortable({items, handle, save})` |
+| `exp::tabs` | tabs that remember the open one (ezflow zones) | `$(el).expTabs({remember})` |
+| `exp::timeline` | ezflow's timeline | `$(el).expTimeline({from, to})` |
+| `exp::gallery`, `exp::carousel` | ezdemo galleries, ezflow carousel | `$(el).expGallery()`, `$(el).expCarousel()` |
+| `exp::rating` | star ratings | `$(el).expRating({fn})` |
+| `exp::flyout`, `exp::toggle`, `exp::anim` | fly-outs, class toggles, transitions | `$(el).expFlyout()`, `$(el).expToggle()`, `Exp.anim()` |
+| `exp::crop` | the image editor's selection | `$(img).expCrop({...})` |
 
 [MODULES.md](MODULES.md) shows each one's status and [ROADMAP.md](ROADMAP.md)
-the order. As each lands, it gets its own chapter in this book.
+the order. As each lands, it gets its own chapter in this book, as chapters 31
+to 37 did.
 
 > [!NOTE]
-> **Built on what the browser already has.** The dialogs will use the native
-> [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
-> element, the date pickers the browser's own date input where it is good
-> enough. Less code to download, better behaviour for screen readers, and less
-> to break.
+> **Built on what the browser already has.** The dialogs of chapter 33 are the
+> native [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog),
+> the upload bars real `<progress>` elements, the calendar's names the
+> browser's own `Intl`. The modules still to come follow the same rule: less
+> code to download, better behaviour for screen readers, and less to break.
 
 ---
 
@@ -1397,10 +1771,10 @@ A. Quick reference card
 
 ```text
 TEMPLATE
-  {exp_config()}                                  configuration (once per page)
+  {exp_config()}                                  configuration (several blocks are merged)
   {exp_config( hash( 'prefs', array('a'), 'strings', array('Saved.') ) )}
   {ezscript_require( array( 'exp::core', 'exp::io' ) )}
-  {ezcss_require( 'exp/core.css' )}
+  {ezcss_require( 'exp/core.css' )}               + exp/dialog.css, upload, datatable, datepicker
 
 CORE
   Exp.$                    jQuery 4
@@ -1421,6 +1795,20 @@ SERVER
   Exp.io.poll(fn, args, {every, until, max, onTick}) → Promise(content)
   Exp.io.url(path)         a site address
   error.kind               signedout refused server network timeout invalid
+
+MODULES (exp::<name>, loaded on every admin page)
+  Exp.collapse({link, collapsed, elements, pref})          $(el).expCollapse()
+  $(toolbar).expSticky({form, start, className, toTop})    Exp.sticky.start()
+  Exp.dialog.open({title, content|url|template, buttons}) → Promise(value|null)
+  Exp.dialog.confirm(text, {okLabel, cancelLabel, danger}) → Promise(bool)
+  Exp.dialog.alert(text) ; Exp.dialog.form(url, {title}) ; data-exp-dialog
+  $(el).expUpload({url, name, multiple, drop, accept, maxSize, data, form, auto})
+                           data-exp-upload ; exp:upload:done / :complete
+  $(el).expDataTable({columns, source, paging, sort, select, actions, tableOptions})
+                           data-exp-datatable ; exp:datatable:load / :select
+  $(fieldset).expDatePicker({fields, button, min, max, firstDay})
+  new Exp.autosave.AutoSubmit({form, action, interval}).start()
+  Exp.emit('autosubmit:forcesave')
 
 CSS
   --exp-ink --exp-muted --exp-faint --exp-line --exp-soft --exp-card
@@ -1474,6 +1862,11 @@ D. Further reading
 - [CONVERTING_YUI_to_EXPUI.md](CONVERTING_YUI_to_EXPUI.md) — moving existing code
 - [ARCHITECTURE.md](ARCHITECTURE.md) — how it works inside
 - [TESTING.md](TESTING.md), [SECURITY.md](SECURITY.md), [FAQ.md](FAQ.md)
+- [MODULES.md](MODULES.md) and the module pages:
+  [collapse](modules/collapse.md), [sticky](modules/sticky.md),
+  [dialog](modules/dialog.md), [upload](modules/upload.md),
+  [datatable](modules/datatable.md), [datepicker](modules/datepicker.md),
+  [autosave](modules/autosave.md)
 
 **jQuery**
 - [learn.jquery.com](https://learn.jquery.com/) — learning jQuery from the start
@@ -1489,14 +1882,23 @@ D. Further reading
 - [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 - [JSON.parse()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
 - [`data-*` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*)
-- [The `<dialog>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog)
+- [The `<dialog>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog), [`showModal()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal) and [`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/::backdrop)
+- [`<input type="file">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file), [`<progress>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress), [upload progress](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload) and [dropping files](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop)
+- [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat)
+- [`aria-sort`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-sort)
 - [CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)
 - [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) and [`matchMedia()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia)
 - [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key)
 - [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) and [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
 
 **Accessibility and testing**
-- [W3C ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
+- [W3C ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/), and the
+  patterns the modules follow: [modal dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/),
+  [alert dialog](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/),
+  [menu button](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/),
+  [grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/),
+  [sortable table](https://www.w3.org/WAI/ARIA/apg/patterns/table/examples/sortable-table/),
+  [date picker dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/)
 - [Playwright](https://playwright.dev/), [PHPUnit](https://phpunit.de/)
 
 **Exponential**

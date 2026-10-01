@@ -13,17 +13,31 @@ session, the real ezjscore endpoint. Results show on the page and in
 `window.ExpTestResults`:
 
 ```js
-{ done: true, passed: 29, failed: 0, tests: [ { name, passed, error, assertions, ms }, … ] }
+{ done: true, passed: 110, failed: 0, tests: [ { name, passed, error, assertions, ms }, … ] }
 ```
 
-The tests live in `design/standard/javascript/exp/test/`:
+The page loads every packer key and every module stylesheet itself (with
+`ezscript`, as a page that uses the API would), so it tests the modules on any
+siteaccess the user may open it on. The tests live in
+`design/standard/javascript/exp/test/`:
 
-| File | Covers |
-|---|---|
-| `runner.js` | the runner: `ExpTest.test(name, fn)`, assertions `ok`, `equal`, `deepEqual`, `throws`, `rejects(promise, kind)` |
-| `core.test.js` | jQuery 4 next to the page's jQuery, `Exp.config`, `Exp.i18n`, events, `register`/`start`, `keys`, `prefs` (saved and read back), environment |
-| `io.test.js` | `callString`, `call` (POST, GET, unknown function, invalid, aborted), `poll` (until, gives up), `form` (fields, lists, submitter, token), `url` |
-| `compat.test.js` | `$.ez()` on both jQuerys, callback and jqXHR, GET, single install |
+| File | Tests | Covers |
+|---|---|---|
+| `runner.js` | | the runner: `ExpTest.test(name, fn)`, assertions `ok`, `equal`, `deepEqual`, `throws`, `rejects(promise, kind)`; a test times out after 15 s |
+| `core.test.js` | 14 | jQuery 4 next to the page's jQuery, `Exp.config`, `Exp.i18n`, events, `register`/`start`, `keys`, `prefs` (saved and read back), merged configuration blocks, the core loaded once, environment |
+| `io.test.js` | 12 | `callString`, `call` (POST, GET, unknown function, invalid, aborted), `poll` (until, gives up), `form` (fields, lists, submitter, token), `url` |
+| `compat.test.js` | 4 | `$.ez()` on both jQuerys, callback and jqXHR, GET, single install |
+| `collapse.test.js` | 8 | styles at once and animated, `aria-expanded`, the template's state, function values, content, callbacks, the event, the preference, the plugin |
+| `sticky.test.js` | 4 | a page without the form, fixing and unfixing, scrolling to the start, the plugin |
+| `dialog.test.js` | 15 | the native modal, focus, Escape and close, `dismissible`, Tab, the backdrop, sizes, `confirm`, `alert`, `url`, `form`, templates, events, scripts not run, stacking, `data-exp-dialog` |
+| `upload.test.js` | 10 | sizes and types, the chooser, one POST per file, a form's fields, refused files, Cancel, `parallel`, errors, drops, `data-exp-upload` |
+| `datatable.test.js` | 25 | helpers, markup, sorting, pagers, every source, messages, selection, column toggling, Table options, menu buttons, inline editing, the filter, the keyboard, the plugin, events |
+| `datepicker.test.js` | 10 | `showDatePicker()`, filling the fields, times, the selected date, months and limits, the keyboard, the first day, closing, the plugin, the icon |
+| `autosave.test.js` | 8 | the form state, saves and no-change, extra and forced saves, errors, `stop()`, leaving a field, `enabled`, `beforeSerialize`, the preview |
+| | **110** | |
+
+The form, upload and dialog tests post to **`expui/test/echo`** (the test view
+with its `echo` action), which answers with the fields and files it received.
 
 Automated: a Playwright script signs in, opens the page, waits for
 `ExpTestResults.done`, prints every result, then reloads the page and checks that
@@ -42,12 +56,13 @@ EXPONENTIAL_ROOT=/path/to/exponential php /path/to/phpunit -c phpunit.xml.dist
 No database, no request: the bootstrap loads the kernel classes and the
 extension's own settings only.
 
-| Test | Covers |
-|---|---|
-| `ServerFunctionsTest` | the files `exp::core` stands for (local, CDN, with and without Migrate), their order, the cache times the packer needs, the inline snippets, the page configuration and its escaping |
-| `TemplateOperatorTest` | `{exp_config()}` with and without options |
-| `PageJqueryTest` | `ezjsc::jquery` as expui sets it: jQuery 4 and Migrate 4, local and from the CDN; the kernel's `jquery()` adding Migrate right after jQuery, and only when it is named; the boot reusing a page's jQuery 4 |
-| `ShippedFilesTest` | the settings ezjscore and the kernel read; the files behind `ezjsc::jquery`, `jqueryMigrate` and `jqueryUI` (jQuery 4, Migrate 4, jQuery UI 1.14) and the same files as `exp::core`'s; the jQuery and jQuery UI files against their CDN integrity hashes; the files the packer keys name; the JavaScript parses (when `node` is installed); every text in every catalogue; the versions agree |
+| Test | Tests | Covers |
+|---|---|---|
+| `ServerFunctionsTest` | 18 | the files `exp::core` stands for (local, CDN, with and without Migrate), their order, every module key putting its file in front, the cache times the packer needs (`exp::core` and every module), the inline snippets, the page configuration and its escaping |
+| `TemplateOperatorTest` | 3 | `{exp_config()}` with and without options |
+| `PageJqueryTest` | 6 | `ezjsc::jquery` as expui sets it: jQuery 4 and Migrate 4, local and from the CDN; the kernel's `jquery()` adding Migrate right after jQuery, and only when it is named; the boot reusing a page's jQuery 4 |
+| `ShippedFilesTest` | 12 | the settings ezjscore and the kernel read; the files behind `ezjsc::jquery`, `jqueryMigrate` and `jqueryUI` (jQuery 4, Migrate 4, jQuery UI 1.14) and the same files as `exp::core`'s; the jQuery and jQuery UI files against their CDN integrity hashes; the files the packer keys `exp::core` and every module name; the admin loading every module and the stylesheets it names; every module's and test's JavaScript parses (when `node` is installed); every text in every catalogue; the versions agree |
+| | **39** | |
 
 Checking your own pages after the switch
 ----------------------------------------
