@@ -1,0 +1,33 @@
+/*!
+ * Exponential UI (expui) core styles: the design tokens every module's stylesheet uses, and a few utilities.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ *
+ * Tokens are custom properties on :root, all named --exp-*, so nothing else on the page is touched; a design
+ * overrides them on :root or on any .exp-scope. Utilities are classes named exp-*.
+ */
+:root {
+    --exp-ink: #1d2b3a; --exp-muted: #66768a; --exp-faint: #a0abb8; --exp-line: #e1e6ec; --exp-soft: #f5f7fa; --exp-card: #fff;
+    --exp-accent: #f26a21; --exp-accent-dark: #d4561a; --exp-accent-ring: rgba(242, 106, 33, 0.18);
+    --exp-ok: #1f7a3a; --exp-ok-bg: #e3f4e8; --exp-warn: #8a5a00; --exp-warn-bg: #fff1d6; --exp-bad: #9a1f1f; --exp-bad-bg: #fde4e4;
+    --exp-info: #1f4a7f; --exp-info-bg: #e8f0fb;
+    --exp-radius: 10px; --exp-radius-s: 6px;
+    --exp-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); --exp-shadow-up: 0 8px 24px rgba(16, 24, 40, 0.12);
+    --exp-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    --exp-speed: 0.15s;
+}
+@media (prefers-reduced-motion: reduce) { :root { --exp-speed: 0s; } }
+
+/* Hidden but read by screen readers */
+.exp-visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+/* The same focus ring everywhere */
+.exp-focus-ring:focus-visible, .exp-scope :focus-visible { outline: none; box-shadow: 0 0 0 3px var(--exp-accent-ring); }
+
+/* The test page */
+.exp-test { color: var(--exp-ink); }
+.exp-test #exp-test-summary { display: inline-block; padding: 0.3em 0.8em; border-radius: 999px; font-weight: 600; background: var(--exp-soft); }
+.exp-test #exp-test-summary.is-pass { background: var(--exp-ok-bg); color: var(--exp-ok); }
+.exp-test #exp-test-summary.is-fail { background: var(--exp-bad-bg); color: var(--exp-bad); }
+.exp-test #exp-test-results { font-family: var(--exp-mono); font-size: 0.85em; }
+.exp-test #exp-test-results .is-pass { color: var(--exp-ok); }
+.exp-test #exp-test-results .is-fail { color: var(--exp-bad); font-weight: 600; }
+.exp-test #exp-test-input { position: absolute; left: -9999px; }
