@@ -1,0 +1,30 @@
+/*!
+ * Exponential UI (expui) exp::datepicker styles: the calendar of the date and date/time fields. Uses the --exp-*
+ * tokens of exp/core.css.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ */
+.exp-datepicker {
+    position: absolute; z-index: 1000; margin-top: 4px; padding: 8px; min-width: 16.5em;
+    color: var(--exp-ink, #1d2b3a); background: var(--exp-card, #fff);
+    border: 1px solid var(--exp-line, #e1e6ec); border-radius: var(--exp-radius, 10px);
+    box-shadow: var(--exp-shadow-up, 0 8px 24px rgba(16, 24, 40, .12)); font-size: 13px; line-height: 1.2;
+}
+.exp-datepicker-head { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.exp-datepicker-title { flex: 1; text-align: center; font-weight: 600; text-transform: capitalize; }
+.exp-datepicker-head button, .exp-datepicker-day {
+    font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: var(--exp-radius-s, 6px);
+    cursor: pointer; transition: background-color var(--exp-speed, .15s);
+}
+.exp-datepicker-head button { width: 2em; height: 2em; font-size: 15px; }
+.exp-datepicker-head button:hover:not(:disabled), .exp-datepicker-day:hover:not(:disabled) { background: var(--exp-soft, #f5f7fa); }
+.exp-datepicker-grid { border-collapse: collapse; width: 100%; }
+.exp-datepicker-grid th { padding: 2px 0 4px; font-weight: 600; font-size: 11px; color: var(--exp-muted, #66768a); text-align: center; }
+.exp-datepicker-grid td { padding: 1px; text-align: center; }
+.exp-datepicker-day { width: 2.2em; height: 2em; }
+.exp-datepicker-day.is-other-month { color: var(--exp-faint, #a0abb8); }
+.exp-datepicker-day.is-today { border-color: var(--exp-accent, #f26a21); }
+.exp-datepicker-day.is-selected { background: var(--exp-accent, #f26a21); color: #fff; }
+.exp-datepicker-day:disabled, .exp-datepicker-head button:disabled { opacity: .35; cursor: default; }
+.exp-datepicker button:focus-visible, img.datepicker-icon:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--exp-accent-ring, rgba(242, 106, 33, .18)); }
+.exp-datepicker-button { margin-left: 4px; padding: 2px 6px; cursor: pointer; line-height: 1; }
+.exp-datepicker-icon { display: inline-block; vertical-align: middle; }
