@@ -1,0 +1,152 @@
+/*!
+ * Exponential UI (expui) exp::datatable styles. Uses the --exp-* tokens of exp/core.css.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ *
+ * The look is the one the admin designs gave YUI's DataTable, Paginator, menu buttons and dialog, so a table moved
+ * to $.fn.expDataTable looks as before. Every colour is a custom property (--exp-dt-*) on .exp-dt, overridable on
+ * :root, .exp-scope or the table's own element.
+ */
+.exp-dt, .exp-dt-actions, .exp-dt-pager, .exp-dt-dialog {
+    --exp-dt-head: #6f6e6b; --exp-dt-head-sortable: #44484d; --exp-dt-head-sorted: #000; --exp-dt-head-ink: #eee;
+    --exp-dt-head-line: #a9a9a9; --exp-dt-row: #fff; --exp-dt-row-alt: #f3f3f3; --exp-dt-row-hover: #d1dfe9;
+    --exp-dt-line: #ccc; --exp-dt-link: #0b4e7a; --exp-dt-button-ink: #0b4e7a; --exp-dt-button-line: #cfd1d3;
+    --exp-dt-button-hover: #999; --exp-dt-disabled: #a6a6a6; --exp-dt-panel: #f2f2f2; --exp-dt-frame: #808080;
+}
+
+/* ---- the table ---------------------------------------------------------------------------------------- */
+.exp-dt { position: static; }
+/* a table wider than its column (a narrow window, a large zoom) scrolls sideways inside the column */
+.exp-dt-scroll { clear: both; max-width: 100%; overflow-x: auto; }
+.exp-dt-table { width: 100%; clear: both; padding: 0; border-collapse: separate; border-spacing: 0; font-size: inherit; }
+.exp-dt-table th, .exp-dt-table td { margin: 0; text-align: left; }
+.exp-dt-table thead th {
+    padding: 4px 10px; border: none; border-left: 1px solid var(--exp-dt-head-line);
+    background: var(--exp-dt-head); color: var(--exp-dt-head-ink); white-space: nowrap; vertical-align: bottom; text-decoration: none;
+}
+.exp-dt-table thead th.exp-dt-sortable { background: var(--exp-dt-head-sortable); padding: 0; }
+.exp-dt-table thead th.exp-dt-asc, .exp-dt-table thead th.exp-dt-desc { background: var(--exp-dt-head-sorted); }
+.exp-dt-table thead th[hidden], .exp-dt-table tbody td[hidden] { display: none; }
+.exp-dt-sort {
+    display: block; width: 100%; margin: 0; padding: 4px 24px 4px 10px; border: 0; background: transparent;
+    color: inherit; font: inherit; font-weight: inherit; text-align: left; white-space: nowrap; cursor: pointer; position: relative;
+}
+.exp-dt-sort:focus-visible { outline: 2px solid var(--exp-accent, #f26a21); outline-offset: -2px; }
+.exp-dt-asc .exp-dt-sort::after, .exp-dt-desc .exp-dt-sort::after {
+    content: ""; position: absolute; right: 8px; top: 50%; border: 4px solid transparent;
+}
+.exp-dt-asc .exp-dt-sort::after { margin-top: -6px; border-bottom-color: currentColor; }
+.exp-dt-desc .exp-dt-sort::after { margin-top: -2px; border-top-color: currentColor; }
+.exp-dt-table tbody td { padding: 4px 10px; border: none; vertical-align: middle; }
+.exp-dt-body td { font-size: 1.05em; }
+.exp-dt-table img { vertical-align: middle; }
+.exp-dt-body tr { background-color: var(--exp-dt-row); }
+.exp-dt-body tr:nth-child(even) { background-color: var(--exp-dt-row-alt); }
+.exp-dt-body tr:first-child td { border-top: 1px solid var(--exp-dt-line); }
+.exp-dt-body tr:hover { background-color: var(--exp-dt-row-hover); }
+.exp-dt-message td { padding: 4px 10px; background-color: var(--exp-card, #fff); }
+.exp-dt-message td.exp-dt-error { color: var(--exp-bad, #9a1f1f); }
+.exp-dt-table[aria-busy="true"] .exp-dt-body { opacity: 0.6; }
+.exp-dt-col-select, .exp-dt-table .exp-dt-col-checkbox { width: 40px; }
+.exp-dt-table .exp-dt-col-crank { width: 35px; }
+.exp-dt-table .exp-dt-col-thumbnail { width: 35px; }
+
+/* inline editing */
+.exp-dt-body td.exp-dt-editable { cursor: pointer; text-decoration: underline; color: var(--exp-dt-link); }
+.exp-dt-body td.exp-dt-editable:focus-visible { outline: 2px solid var(--exp-accent, #f26a21); outline-offset: -2px; }
+.exp-dt-body td.exp-dt-editing { position: relative; text-decoration: none; }
+.exp-dt-editor {
+    position: absolute; z-index: 2; top: 0; left: 0; box-sizing: border-box; width: 100%; min-width: 4em; height: 100%; margin: 0; padding: 2px 6px;
+    border: 1px solid var(--exp-dt-frame); background: #fff; color: var(--exp-ink, #1d2b3a); font: inherit; text-decoration: none;
+}
+
+/* ---- toolbar buttons and their menus ------------------------------------------------------------------- */
+.exp-dt-action-group { position: relative; display: inline-block; vertical-align: text-bottom; }
+.exp-dt-action {
+    display: inline-block; vertical-align: text-bottom; margin-left: 5px; overflow: visible; cursor: pointer;
+    border: 1px solid var(--exp-dt-button-line); border-radius: 3px; background: #fff linear-gradient(#fff, #eee);
+    background-clip: padding-box; color: #44484d; font-size: 1.1em; font-weight: normal; text-align: center; text-shadow: 0 1px #fff;
+}
+.exp-dt-action-group:first-child .exp-dt-action { margin-left: 0; }
+.exp-dt-action:hover { border-color: var(--exp-dt-button-hover); }
+.exp-dt-button {
+    display: block; margin: 0; padding: 0.25em 0.55em; border: none; background-color: #f0f0f0;
+    color: var(--exp-dt-button-ink); cursor: pointer;
+}
+.exp-dt-button:focus-visible { outline: 2px solid var(--exp-accent, #f26a21); outline-offset: 1px; }
+.exp-dt-action-disabled, .exp-dt-action-disabled:hover { border-color: var(--exp-dt-button-line); cursor: default; }
+.exp-dt-button:disabled { color: #888; cursor: default; }
+.exp-dt-menu-button .exp-dt-button { padding-right: 0.55em; }
+.exp-dt-menu {
+    position: absolute; z-index: 1000; top: 100%; left: 0; min-width: 100%; max-height: 60vh; overflow-x: hidden; overflow-y: auto;
+    margin: 0; padding: 3px 0; list-style: none; border: 1px solid #999; border-radius: 0 0 3px 3px; background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12); line-height: 1.5; text-align: left; white-space: nowrap;
+}
+.exp-dt-menu[hidden] { display: none; }
+.exp-dt-menu ul { margin: 0; padding: 0; list-style: none; }
+.exp-dt-menu li { margin: 0; padding: 3px 0; list-style: none; }
+.exp-dt-menu .exp-dt-menu-groupwrap { padding: 0; }
+.exp-dt-menu .exp-dt-menu-groupwrap + .exp-dt-menu-groupwrap { border-top: 1px solid var(--exp-dt-line); }
+.exp-dt-menu-group { display: block; padding: 3px 10px 0 10px; font-weight: bold; color: #666; }
+.exp-dt-menu [role=menuitem] {
+    display: block; width: 100%; margin: 0; padding: 0 20px; border: 0; background: transparent; color: #000;
+    font: inherit; text-align: left; white-space: nowrap; cursor: default;
+}
+.exp-dt-menu .exp-dt-menuitem:hover, .exp-dt-menu .exp-dt-menuitem:focus-within { background-color: var(--exp-dt-row-hover); }
+.exp-dt-menu [role=menuitem]:focus { outline: none; }
+.exp-dt-menu [role=menuitem]:focus-visible { box-shadow: inset 0 0 0 2px var(--exp-accent-ring, rgba(242, 106, 33, 0.18)); }
+.exp-dt-menu .exp-dt-menuitem-disabled [role=menuitem], .exp-dt-menu .exp-dt-menuitem-disabled:hover [role=menuitem] { color: var(--exp-dt-disabled); }
+.exp-dt-menu .exp-dt-menuitem-disabled:hover { background-color: transparent; }
+
+/* ---- pagers ------------------------------------------------------------------------------------------- */
+.exp-dt-pager { display: block; margin-top: 10px; text-align: center; }
+.exp-dt-pager[hidden] { display: none; }
+.exp-dt-pager::after { content: ""; display: block; clear: both; }
+.exp-dt-pager .exp-dt-backward { float: left; }
+.exp-dt-pager .exp-dt-forward { float: right; }
+.exp-dt-pager-compact { margin-top: 0; }
+.exp-dt-pager-compact::after { display: none; }
+.exp-dt-first, .exp-dt-prev, .exp-dt-next, .exp-dt-last {
+    display: inline-block; box-sizing: content-box; width: 31px; height: 25px; margin: 0 0 0 5px; padding: 0; vertical-align: middle;
+    border: 1px solid var(--exp-dt-button-line); border-radius: 3px; background: #fff linear-gradient(#fff, #eee);
+    color: #000; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 2em; line-height: 24px; text-decoration: none; cursor: pointer;
+}
+.exp-dt-first:hover, .exp-dt-prev:hover, .exp-dt-next:hover, .exp-dt-last:hover, .exp-dt-page:hover { border-color: var(--exp-dt-button-hover); }
+.exp-dt-first:disabled, .exp-dt-prev:disabled, .exp-dt-next:disabled, .exp-dt-last:disabled {
+    color: var(--exp-dt-disabled); cursor: default; border-color: var(--exp-dt-button-line);
+    background: repeating-linear-gradient(135deg, #fff 0, #fff 2px, #ddd 2px, #ddd 3px);
+}
+.exp-dt-first:focus-visible, .exp-dt-prev:focus-visible, .exp-dt-next:focus-visible, .exp-dt-last:focus-visible, .exp-dt-page:focus-visible {
+    outline: 2px solid var(--exp-accent, #f26a21); outline-offset: 1px;
+}
+.exp-dt-prev span { margin: 0 5px 0 2px; }
+.exp-dt-next span { margin: 0 5px 0 4px; }
+.exp-dt-pages { display: inline-block; padding: 0; }
+.exp-dt-page {
+    display: inline-block; margin: 0 1px; padding: 0.3em 0.5em; border: 1px solid #cbcbcb; border-radius: 2px; background-color: #fff;
+    color: var(--exp-dt-link); font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 1em; line-height: normal; text-decoration: none; cursor: pointer;
+}
+.exp-dt-page.exp-dt-current { color: inherit; font-weight: bold; cursor: default; }
+
+/* ---- Table options -------------------------------------------------------------------------------------- */
+.exp-dt-dialog {
+    box-sizing: border-box; width: 25em; max-width: calc(100vw - 32px); margin: auto; padding: 0;
+    border: 1px solid var(--exp-dt-frame); background: var(--exp-dt-panel); color: #000; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.exp-dt-dialog::backdrop { background-color: rgba(0, 0, 0, 0.25); }
+.exp-dt-dialog-title {
+    margin: 0; padding: 0 10px; border-bottom: 1px solid var(--exp-dt-line); background: linear-gradient(#fff, #e4e4e4);
+    font-size: 93%; font-weight: bold; line-height: 2; color: #000;
+}
+.exp-dt-dialog-body { padding: 10px 15px; }
+.exp-dt-dialog-body fieldset { margin: 0; }
+.exp-dt-dialog-body .table-options-key label { font-weight: normal; }
+.exp-dt-dialog-footer { padding: 10px; text-align: right; }
+.exp-dt-dialog-close {
+    padding: 0.25em 0.8em; border: 1px solid var(--exp-dt-button-line); border-radius: 3px; background: #fff linear-gradient(#fdfdfd, #e4e3e4);
+    color: var(--exp-dt-button-ink); font: inherit; font-weight: bold; cursor: pointer;
+}
+.exp-dt-dialog-close:hover { border-color: var(--exp-dt-button-hover); }
+
+@media (prefers-reduced-motion: reduce) {
+    .exp-dt *, .exp-dt-menu, .exp-dt-dialog { transition: none !important; animation: none !important; }
+}
