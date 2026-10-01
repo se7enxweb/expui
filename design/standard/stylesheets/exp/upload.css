@@ -1,0 +1,64 @@
+/*!
+ * Exponential UI (expui) exp::upload styles. Uses the --exp-* tokens of exp/core.css.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ *
+ * .exp-upload > .exp-upload-zone (.exp-upload-select with the file input, .exp-upload-hint) and .exp-upload-list >
+ * .exp-upload-file.is-queued|uploading|done|failed|canceled|refused (.exp-upload-name, -size, -progress, -status, -cancel).
+ * A drop zone gets .exp-upload-drop, and .is-over while files are dragged over it.
+ */
+.exp-upload { box-sizing: border-box; color: var(--exp-ink); }
+.exp-upload.is-disabled .exp-upload-zone { opacity: 0.55; }
+.exp-upload-zone { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.9rem; }
+.exp-upload-drop .exp-upload-zone, .exp-upload-zone.exp-upload-drop {
+    padding: 1rem 1.1rem; border: 2px dashed var(--exp-line); border-radius: var(--exp-radius); background: var(--exp-soft);
+    transition: border-color var(--exp-speed), background-color var(--exp-speed);
+}
+.exp-upload-drop.is-over .exp-upload-zone, .exp-upload-zone.exp-upload-drop.is-over, .exp-upload-drop.is-over:not(.exp-upload) {
+    border-color: var(--exp-accent); background: var(--exp-accent-ring);
+}
+.exp-upload-select {
+    position: relative; display: inline-flex; align-items: center;
+    padding: 0.45rem 1rem; border: 1px solid var(--exp-accent); border-radius: var(--exp-radius-s);
+    background: var(--exp-accent); color: #fff; font-weight: 600; cursor: pointer;
+}
+.exp-upload-select:hover { background: var(--exp-accent-dark); border-color: var(--exp-accent-dark); }
+.exp-upload-select:focus-within { box-shadow: 0 0 0 3px var(--exp-accent-ring); }
+/* the input stays in the page and reachable with Tab, under its label */
+.exp-upload-select .exp-upload-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.exp-upload.is-disabled .exp-upload-select { cursor: not-allowed; }
+.exp-upload.is-disabled .exp-upload-select .exp-upload-input { cursor: not-allowed; }
+.exp-upload-hint { color: var(--exp-muted); }
+
+.exp-upload-list { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+.exp-upload-list[hidden] { display: none; }
+.exp-upload-file {
+    display: grid; grid-template-columns: minmax(6rem, 1fr) auto minmax(5rem, 9rem) minmax(4rem, auto) auto; align-items: center; gap: 0.3rem 0.75rem;
+    margin: 0 0 0.35rem; padding: 0.45rem 0.7rem;
+    border: 1px solid var(--exp-line); border-radius: var(--exp-radius-s); background: var(--exp-card);
+}
+.exp-upload-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.exp-upload-size { color: var(--exp-muted); font-size: 0.9em; white-space: nowrap; }
+.exp-upload-progress { width: 100%; height: 0.55rem; accent-color: var(--exp-accent); }
+.exp-upload-progress[hidden] { display: block; visibility: hidden; }
+.exp-upload-status { color: var(--exp-muted); font-size: 0.9em; }
+.exp-upload-cancel {
+    padding: 0.2rem 0.6rem; border: 1px solid var(--exp-line); border-radius: var(--exp-radius-s);
+    background: var(--exp-card); color: var(--exp-ink); font: inherit; font-size: 0.9em; cursor: pointer;
+}
+.exp-upload-cancel:hover { border-color: var(--exp-bad); color: var(--exp-bad); }
+.exp-upload-cancel[hidden] { display: none; }
+.exp-upload-file.is-done { border-color: var(--exp-ok-bg); }
+.exp-upload-file.is-done .exp-upload-status { color: var(--exp-ok); font-weight: 600; }
+.exp-upload-file.is-failed, .exp-upload-file.is-refused { border-color: var(--exp-bad-bg); background: var(--exp-bad-bg); }
+.exp-upload-file.is-failed .exp-upload-status, .exp-upload-file.is-refused .exp-upload-status { color: var(--exp-bad); font-weight: 600; }
+.exp-upload-file.is-canceled { opacity: 0.7; }
+.exp-upload-file.is-canceled .exp-upload-name { text-decoration: line-through; }
+.exp-upload :focus-visible { outline: none; box-shadow: 0 0 0 3px var(--exp-accent-ring); }
+
+/* Next to a form's own file field (the relation upload's step 1) */
+.exp-upload--input .exp-upload-list { margin-top: 0.5rem; }
+
+@media (max-width: 560px) {
+    .exp-upload-file { grid-template-columns: 1fr auto; }
+    .exp-upload-progress { grid-column: 1 / -1; }
+}
