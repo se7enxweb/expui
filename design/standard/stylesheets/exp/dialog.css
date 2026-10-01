@@ -1,0 +1,100 @@
+/*!
+ * Exponential UI (expui) exp::dialog styles. Uses the --exp-* tokens of exp/core.css.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ *
+ * <dialog class="exp-dialog exp-dialog--s|m|l|xl"> > .exp-dialog-frame > header (.exp-dialog-title, .exp-dialog-close),
+ * .exp-dialog-error, .exp-dialog-body, footer (.exp-dialog-button, .is-primary, .is-danger). Busy: .exp-dialog--busy.
+ */
+.exp-dialog {
+    box-sizing: border-box;
+    width: min(38rem, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--exp-line);
+    border-radius: var(--exp-radius);
+    background: var(--exp-card);
+    color: var(--exp-ink);
+    box-shadow: var(--exp-shadow-up);
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    text-align: left;
+    overflow: hidden;
+}
+.exp-dialog--s { width: min(26rem, calc(100vw - 2rem)); }
+.exp-dialog--m { width: min(42rem, calc(100vw - 2rem)); }
+.exp-dialog--l { width: min(56rem, calc(100vw - 2rem)); }
+.exp-dialog--xl { width: min(76rem, calc(100vw - 2rem)); }
+.exp-dialog::backdrop { background: rgba(16, 24, 40, 0.45); }
+.exp-dialog[open] { animation: exp-dialog-in var(--exp-speed) ease-out; }
+@keyframes exp-dialog-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .exp-dialog[open] { animation: none; } }
+
+.exp-dialog-frame { position: relative; display: flex; flex-direction: column; max-height: calc(100vh - 2rem); }
+.exp-dialog-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.7rem 0.75rem 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--exp-line);
+    background: var(--exp-soft);
+}
+.exp-dialog .exp-dialog-title {
+    flex: 1; margin: 0; padding: 0; border: 0; background: none;
+    color: var(--exp-ink); font-size: 1.05rem; font-weight: 600; line-height: 1.3;
+}
+.exp-dialog .exp-dialog-title[hidden] { display: block; visibility: hidden; }
+.exp-dialog-close {
+    flex: none; width: 2rem; height: 2rem; margin: 0; padding: 0;
+    border: 1px solid transparent; border-radius: var(--exp-radius-s);
+    background: transparent; color: var(--exp-muted);
+    font-size: 1.4rem; line-height: 1; cursor: pointer;
+}
+.exp-dialog-close:hover { background: var(--exp-card); border-color: var(--exp-line); color: var(--exp-ink); }
+.exp-dialog-body { padding: 1rem 1.1rem; overflow: auto; min-height: 3rem; }
+.exp-dialog-text { margin: 0; white-space: pre-line; }
+.exp-dialog-error {
+    margin: 0.75rem 1.1rem 0; padding: 0.55rem 0.8rem;
+    border: 1px solid var(--exp-bad); border-radius: var(--exp-radius-s);
+    background: var(--exp-bad-bg); color: var(--exp-bad); font-weight: 600;
+}
+.exp-dialog-error[hidden], .exp-dialog-footer[hidden], .exp-dialog-close[hidden] { display: none; }
+.exp-dialog-footer {
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem;
+    padding: 0.7rem 1.1rem; border-top: 1px solid var(--exp-line); background: var(--exp-soft);
+}
+.exp-dialog-button {
+    min-width: 5.5rem; margin: 0; padding: 0.45rem 1rem;
+    border: 1px solid var(--exp-line); border-radius: var(--exp-radius-s);
+    background: var(--exp-card); color: var(--exp-ink);
+    font: inherit; font-weight: 600; cursor: pointer;
+    transition: background-color var(--exp-speed), border-color var(--exp-speed);
+}
+.exp-dialog-button:hover { border-color: var(--exp-faint); }
+.exp-dialog-button.is-primary { border-color: var(--exp-accent); background: var(--exp-accent); color: #fff; }
+.exp-dialog-button.is-primary:hover { border-color: var(--exp-accent-dark); background: var(--exp-accent-dark); }
+.exp-dialog-button.is-danger { border-color: var(--exp-bad); background: var(--exp-bad); color: #fff; }
+.exp-dialog-button.is-danger:hover { filter: brightness(0.92); }
+.exp-dialog :focus-visible { outline: none; box-shadow: 0 0 0 3px var(--exp-accent-ring); }
+.exp-dialog:focus { outline: none; }
+
+/* Busy: the body dimmed, a spinner over it */
+.exp-dialog--busy .exp-dialog-body { opacity: 0.25; pointer-events: none; }
+.exp-dialog-spinner {
+    position: absolute; left: 50%; top: 45%; z-index: 1;
+    width: 1.8rem; height: 1.8rem; margin: -0.9rem 0 0 -0.9rem;
+    border: 3px solid var(--exp-line); border-top-color: var(--exp-accent); border-radius: 50%;
+    animation: exp-dialog-spin 0.8s linear infinite;
+}
+@keyframes exp-dialog-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .exp-dialog-spinner { animation-duration: 2.4s; } }
+
+/* Content made for the admin's old modal window (the relation upload's forms) */
+.exp-dialog .exp-dialog-body fieldset { margin: 0; }
+.exp-dialog .exp-dialog-body .message-error { margin: 0.5rem 0; padding: 0.8rem 1rem; border: 2px solid #c11b17; border-radius: 3px; background: #f3dfdf; }
+
+@media (max-width: 480px) {
+    .exp-dialog, .exp-dialog--s, .exp-dialog--m, .exp-dialog--l, .exp-dialog--xl { width: calc(100vw - 1rem); max-width: calc(100vw - 1rem); }
+    .exp-dialog-footer { justify-content: stretch; }
+    .exp-dialog-footer .exp-dialog-button { flex: 1; }
+}
