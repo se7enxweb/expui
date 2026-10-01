@@ -1,0 +1,5 @@
+/*!
+ * Exponential UI (expui) exp::autosave styles. The module has none of its own: the autosave status and the preview use
+ * the styles of the admin design and of ezautosave. The file is kept so that exp::autosave loads like every module.
+ * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
+ */
