@@ -37,6 +37,7 @@
     function uid(prefix) { nextId += 1; return (prefix || 'exp-dt') + '-' + nextId; }
     function t(text, params) { return Exp.i18n(text, params); }
     function isFn(f) { return typeof f === 'function'; }
+    function trim(value) { return String(value).replace(/^\s+|\s+$/g, ''); }
     function escapeHtml(value) {
         return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -360,14 +361,14 @@
         var cols = [], self = this;
         this.$table.find('thead th').each(function (i) {
             var key = this.getAttribute('data-key') || ('c' + i);
-            cols.push({ key: key, label: $(this).text().replace(/^\s+|\s+$/g, ''), html: this.innerHTML,
+            cols.push({ key: key, label: trim($(this).text()), html: this.innerHTML,
                         sortable: this.hasAttribute('data-sortable') || $(this).hasClass('exp-dt-sortable') });
         });
         var keys = cols.map(function (c) { return c.key; });
         this.domRows = this.$table.find('tbody tr').toArray().map(function (tr) {
             var row = { _tr: tr };
             $(tr).children('td, th').each(function (i) {
-                row[keys[i]] = this.hasAttribute('data-value') ? this.getAttribute('data-value') : $(this).text().replace(/^\s+|\s+$/g, '');
+                row[keys[i]] = this.hasAttribute('data-value') ? this.getAttribute('data-value') : trim($(this).text());
             });
             return row;
         });
@@ -587,7 +588,7 @@
                 var $cr = $('<input id="table-option-custom-radio" type="radio" name="TableOptionValue" value="custom" />').attr('aria-label', c.label);
                 var valid = function (v) { var n = parseInt(v, 10); return !isNaN(n) && n > 0 && n <= c.max ? n : null; };
                 var apply = function () {
-                    var v = String($ci.val()).replace(/^\s+|\s+$/g, '');
+                    var v = trim($ci.val());
                     if (v === '') { return; }
                     var n = valid(v);
                     if (n !== null) {
@@ -603,7 +604,7 @@
                 $ci.on('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); apply(); } });
                 $ci.on('blur', apply);
                 $cr.on('click', function () {
-                    var n = valid(String($ci.val()).replace(/^\s+|\s+$/g, ''));
+                    var n = valid(trim($ci.val()));
                     if (n !== null) { self.setLimit(n); }
                 });
                 $block.append($('<div class="table-options-row"></div>').append(
@@ -684,13 +685,7 @@
         if (!$cb) { return; }
         keepFocus($cb, function () {
             $cb.empty();
-            var groups = [], byGroup = {};
-            self.defOrder.forEach(function (col, i) {
-                if (!col.label || !col.key || col.toggle === false) { return; }
-                var g = col.group || '';
-                if (!Object.prototype.hasOwnProperty.call(byGroup, g)) { byGroup[g] = []; groups.push(g); }
-                byGroup[g].push({ col: col, i: i });
-            });
+            var G = self.optionColumnGroups(), groups = G.groups, byGroup = G.byGroup;
             var grouped = groups.length > 1 || (groups.length === 1 && groups[0] !== '');
             groups.forEach(function (g, gi) {
                 var $target = $cb;
@@ -726,9 +721,25 @@
         this.renderOrderList();
     };
 
+    /**
+     * The columns Table options offers (they have a key and a label and can be toggled), by group in the order
+     * the groups first appear: { groups: [name, ...], byGroup: { name: [ { col, i }, ... ] } }, i the column's
+     * place in the defined order ('' is the group of columns without one).
+     */
+    DataTable.prototype.optionColumnGroups = function () {
+        var groups = [], byGroup = {};
+        this.defOrder.forEach(function (col, i) {
+            if (!col.label || !col.key || col.toggle === false) { return; }
+            var g = col.group || '';
+            if (!Object.prototype.hasOwnProperty.call(byGroup, g)) { byGroup[g] = []; groups.push(g); }
+            byGroup[g].push({ col: col, i: i });
+        });
+        return { groups: groups, byGroup: byGroup };
+    };
+
     /** Shows only the column check boxes whose name (or group, or description) has the text. */
     DataTable.prototype.filterOptionColumns = function (text) {
-        var needle = String(text || '').replace(/^\s+|\s+$/g, '').toLowerCase(), $cb = this.$columnList, any = false;
+        var needle = trim(text || '').toLowerCase(), $cb = this.$columnList, any = false;
         if (!$cb) { return; }
         $cb.find('.table-options-row').each(function () {
             var on = !needle || this.getAttribute('data-search').indexOf(needle) !== -1;
@@ -834,7 +845,7 @@
             var $name = $('<input type="text" class="exp-dt-preset-name" data-role="exp-dt-preset-name" data-key="n" maxlength="60" />').attr({ id: nid, placeholder: P.name });
             var $save = $('<button type="button" class="exp-dt-dialog-close exp-dt-preset-save" data-role="exp-dt-preset-save" data-key="v"></button>').text(P.saveAs);
             var save = function () {
-                var name = String($name.val()).replace(/^\s+|\s+$/g, '');
+                var name = trim($name.val());
                 if (!name) { $name[0].focus(); return; }
                 if (!isFn(P.onSave)) { return; }
                 Promise.resolve(P.onSave.call(self, name, self.shownColumns(), self)).then(function () { self.renderPresets(); });
