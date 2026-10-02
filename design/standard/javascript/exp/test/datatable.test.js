@@ -584,4 +584,112 @@
             sandbox('');
         });
     });
+
+    // ---- ordered columns, copy cells, the larger Table options -----------------------------------------------
+
+    function heads() { return $('#dt thead th:not([hidden])').map(function () { return this.getAttribute('data-key'); }).get(); }
+
+    test('datatable: columnToggle ordered: shown keys give the order; setShown, moveColumn, save', function (t) {
+        var saved = [];
+        return make({ columns: COLS.concat([{ key: 'prio', label: 'Priority', sortable: true }]),
+                      columnToggle: { shown: ['age', 'name'], ordered: true, save: function (k) { saved.push(k.join(',')); } } }).then(function (dt) {
+            t.deepEqual(heads(), ['age', 'name'], 'in the order of shown');
+            t.deepEqual(dt.shownColumns(), ['age', 'name']);
+            dt.setShown(['prio', 'id', 'age']);
+            t.deepEqual(heads(), ['prio', 'id', 'age'], 'setShown shows and orders');
+            t.equal($('#dt tbody.exp-dt-body tr').first().children('td:not([hidden])').first().attr('data-key'), 'prio', 'the cells follow');
+            t.ok(dt.moveColumn('age', -1), 'moved');
+            t.deepEqual(heads(), ['prio', 'age', 'id']);
+            t.ok(!dt.moveColumn('prio', -1), 'not before the first');
+            t.deepEqual(saved, ['prio,id,age', 'prio,age,id'], 'each change saved');
+            $('#dt thead th[data-key=age] button').trigger('click');
+            t.equal($('#dt thead th[data-key=age]').attr('aria-sort'), 'ascending', 'a rebuilt header still sorts');
+        });
+    });
+
+    test('datatable: a remote column loads the rows again when shown', function (t) {
+        var calls = [];
+        var src = function (s) {
+            calls.push(this.visibleColumns().join(','));
+            return { rows: people().map(function (r) { return $.extend(r, { extra: 'x' + r.id }); }), total: 5 };
+        };
+        return make({ columns: COLS.concat([{ key: 'extra', label: 'Extra', remote: true, hidden: true }]), source: src,
+                      columnToggle: { shown: ['name'], ordered: true } }).then(function (dt) {
+            t.equal(calls.length, 1);
+            var loaded = onceEvent($('#dt'), 'exp:datatable:load');
+            dt.setShown(['name', 'extra']);
+            return loaded.then(function () {
+                t.equal(calls.length, 2, 'loaded again');
+                t.ok(/extra/.test(calls[1]), 'with the column visible');
+                dt.setShown(['extra', 'name']);
+                t.equal(calls.length, 2, 'a new order only draws the rows again');
+            });
+        });
+    });
+
+    test('datatable: copy cells: a click copies the value and says so', function (t) {
+        var copied = null, orig = window.navigator.clipboard && window.navigator.clipboard.writeText;
+        if (window.navigator.clipboard) { window.navigator.clipboard.writeText = function (s) { copied = s; return Promise.resolve(); }; }
+        return make({ columns: [{ key: 'id', label: 'ID', copy: true, align: 'right' }, { key: 'name', label: 'Name', copy: function (r) { return 'N:' + r.name; } }],
+                      copy: { done: 'Done!' } }).then(function (dt) {
+            var $td = $('#dt tbody.exp-dt-body td[data-key=name]').first();
+            t.ok($td.hasClass('exp-dt-copy') && $td.attr('tabindex') === '0', 'a focusable copy cell');
+            t.ok($('#dt td[data-key=id]').first().hasClass('exp-dt-align-right'), 'aligned');
+            return dt.copyCell($td[0]).then(function (ok) {
+                t.ok(ok, 'copied');
+                if (window.navigator.clipboard) { t.equal(copied, 'N:' + $td.closest('tr').data('expRow').name, 'the copy() text'); }
+                t.equal($td.find('.exp-dt-copied').text(), 'Done!', 'the confirmation');
+            });
+        }).finally(function () { if (orig) { window.navigator.clipboard.writeText = orig; } });
+    });
+
+    test('datatable: Table options with groups, a column filter, the order list, presets and buttons', function (t) {
+        var applied = null, saved = null, deleted = null, clicked = 0;
+        var presets = [{ id: 'a', name: 'Ages', own: false, columns: ['age'] }, { id: 'm', name: 'Mine', own: true, columns: ['id', 'name'] }];
+        return make({
+            columns: [{ key: 'id', label: 'ID', group: 'Keys' }, { key: 'name', label: 'Name', group: 'Basic' }, { key: 'age', label: 'Age', group: 'Basic', title: 'years' }],
+            columnToggle: { shown: ['name', 'id'], ordered: true },
+            tableOptions: {
+                columns: { legend: 'Columns', filter: { label: 'Find', none: 'Nothing' } },
+                presets: { items: function () { return presets; }, current: function () { return null; },
+                           onApply: function (it) { applied = it.id; this.setShown(it.columns); },
+                           onSave: function (name, keys) { saved = name + ':' + keys.join(','); presets.push({ id: 'n', name: name, own: true, columns: keys }); },
+                           onDelete: function (it) { deleted = it.id; } },
+                buttons: [{ id: 'dt-export', label: 'Export', onClick: function () { clicked++; } }]
+            }
+        }).then(function (dt) {
+            dt.openOptions();
+            var $d = $('dialog.exp-dt-dialog');
+            t.ok($d.hasClass('exp-dt-dialog-wide'), 'the larger dialog');
+            t.deepEqual($d.find('.exp-dt-column-group-title').map(function () { return $(this).text(); }).get(), ['Keys', 'Basic'], 'groups in order');
+            $d.find('.exp-dt-column-filter').val('yea').trigger('input');
+            t.deepEqual($d.find('.exp-dt-column-list .table-options-row:not([hidden]) label').map(function () { return $(this).text(); }).get(), ['Age'], 'filtered by the description too');
+            t.ok($d.find('.exp-dt-column-group').first().prop('hidden'), 'an empty group hides');
+            $d.find('.exp-dt-column-filter').val('zzz').trigger('input');
+            t.ok(!$d.find('.exp-dt-column-none').prop('hidden'), 'the nothing found text');
+            $d.find('.exp-dt-column-filter').val('').trigger('input');
+            t.deepEqual($d.find('ol.exp-dt-order li').map(function () { return this.getAttribute('data-key'); }).get(), ['name', 'id'], 'the order list');
+            t.ok($d.find('ol.exp-dt-order li').first().find('.exp-dt-order-up').prop('disabled'), 'the first cannot go up');
+            $d.find('ol.exp-dt-order li').eq(1).find('.exp-dt-order-up').trigger('click');
+            t.deepEqual(heads(), ['id', 'name'], 'the up button moves it');
+            $d.find('input[name=TableOptionColumn][value=age]').trigger('click');
+            t.deepEqual(heads(), ['id', 'name', 'age'], 'a ticked column goes last');
+            var $sel = $d.find('select.exp-dt-preset-select');
+            t.equal($sel.find('option').length, 3, 'none plus two presets');
+            $sel.val('a').trigger('change');
+            t.equal(applied, 'a'); t.deepEqual(heads(), ['age'], 'the preset applied');
+            t.ok($d.find('.exp-dt-preset-delete').prop('disabled'), 'an INI preset cannot be deleted');
+            $d.find('select.exp-dt-preset-select').val('m').trigger('change');
+            t.ok(!$d.find('.exp-dt-preset-delete').prop('disabled'), 'an own preset can');
+            $d.find('.exp-dt-preset-delete').trigger('click');
+            t.equal(deleted, 'm', 'deleted');
+            $d.find('input.exp-dt-preset-name').val(' New ');
+            $d.find('.exp-dt-preset-save').trigger('click');
+            t.equal(saved, 'New:id,name', 'saved with the shown columns');
+            $d.find('#dt-export').trigger('click');
+            t.equal(clicked, 1, 'a footer button');
+            dt.closeOptions();
+            sandbox('');
+        });
+    });
 }(window, document));

@@ -146,6 +146,60 @@
     color: var(--exp-dt-button-ink); font: inherit; font-weight: bold; cursor: pointer;
 }
 .exp-dt-dialog-close:hover { border-color: var(--exp-dt-button-hover); }
+.exp-dt-dialog-close:disabled, .exp-dt-dialog-close:disabled:hover { color: var(--exp-dt-disabled); border-color: var(--exp-dt-button-line); cursor: default; }
+.exp-dt-dialog-close:focus-visible, .exp-dt-dialog button:focus-visible, .exp-dt-dialog input:focus-visible,
+.exp-dt-dialog select:focus-visible { outline: 2px solid var(--exp-accent, #f26a21); outline-offset: 1px; }
+
+/* the larger dialog: presets, a column filter, the columns in groups and their order */
+.exp-dt-dialog-wide { width: 44em; }
+.exp-dt-dialog-wide .exp-dt-dialog-body { max-height: calc(100vh - 9em); overflow-y: auto; }
+.exp-dt-dialog-footer .exp-dt-dialog-button { float: left; margin-right: 0.5em; }
+.exp-dt-dialog-footer::after { content: ""; display: block; clear: both; }
+.exp-dt-preset-row { margin: 0.25em 0 0.5em 0; display: flex; flex-wrap: wrap; gap: 0.4em; align-items: center; }
+.exp-dt-preset-row select, .exp-dt-preset-row input[type=text] { flex: 1 1 12em; min-width: 0; max-width: 22em; font: inherit; }
+.exp-dt-preset-row label { font-weight: normal; }
+.exp-dt-column-filter-row { margin: 0.25em 0 0.5em 0; display: flex; gap: 0.4em; align-items: center; }
+.exp-dt-column-filter-row label { font-weight: normal; white-space: nowrap; }
+.exp-dt-column-filter { flex: 1 1 auto; min-width: 0; max-width: 22em; font: inherit; }
+.exp-dt-column-list { columns: 2 16em; column-gap: 1.5em; }
+.exp-dt-column-group { break-inside: avoid; margin-bottom: 0.5em; }
+.exp-dt-column-group[hidden], .exp-dt-column-list .table-options-row[hidden], .exp-dt-column-none[hidden] { display: none; }
+.exp-dt-column-group-title { margin: 0.3em 0 0.15em 0; padding: 0 0 1px 0; border-bottom: 1px solid var(--exp-dt-line); font-size: 1em; font-weight: bold; color: #444; }
+.exp-dt-column-list .table-options-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; }
+.exp-dt-column-none { margin: 0.5em 0; color: #666; }
+.exp-dt-order-hint { margin: 0 0 0.4em 0; color: #555; }
+.exp-dt-order { margin: 0; padding: 0; list-style: none; }
+.exp-dt-order-item {
+    display: flex; align-items: center; gap: 0.4em; margin: 0 0 2px 0; padding: 2px 4px; border: 1px solid var(--exp-dt-button-line);
+    border-radius: 3px; background: #fff; cursor: grab;
+}
+.exp-dt-order-item.exp-dt-dragging { opacity: 0.5; }
+.exp-dt-order-item.exp-dt-drop-before { box-shadow: inset 0 3px 0 var(--exp-accent, #f26a21); }
+.exp-dt-order-item.exp-dt-drop-after { box-shadow: inset 0 -3px 0 var(--exp-accent, #f26a21); }
+.exp-dt-order-handle {
+    flex: 0 0 auto; width: 8px; height: 14px; opacity: 0.6;
+    background: radial-gradient(circle, #555 1.2px, transparent 1.5px) 0 0 / 4px 4px;
+}
+.exp-dt-order-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exp-dt-order-up, .exp-dt-order-down {
+    flex: 0 0 auto; min-width: 1.9em; padding: 0 0.3em; border: 1px solid var(--exp-dt-button-line); border-radius: 3px;
+    background: #fff linear-gradient(#fdfdfd, #e4e3e4); color: var(--exp-dt-button-ink); font: inherit; line-height: 1.5; cursor: pointer;
+}
+.exp-dt-order-up:disabled, .exp-dt-order-down:disabled { color: var(--exp-dt-disabled); cursor: default; }
+
+/* alignment and cells that copy their value on a click */
+.exp-dt-table .exp-dt-align-right { text-align: right; }
+.exp-dt-table .exp-dt-align-center { text-align: center; }
+.exp-dt-table thead th.exp-dt-align-right .exp-dt-sort { text-align: right; }
+.exp-dt-body td.exp-dt-copy { position: relative; cursor: copy; }
+.exp-dt-body td.exp-dt-copy:hover { box-shadow: inset 0 -1px 0 var(--exp-dt-link); }
+.exp-dt-body td.exp-dt-copy:focus-visible { outline: 2px solid var(--exp-accent, #f26a21); outline-offset: -2px; }
+.exp-dt-copied {
+    position: absolute; z-index: 3; top: -1.6em; left: 4px; padding: 1px 6px; border-radius: 3px;
+    background: #2e6b2e; color: #fff; font-size: 0.85em; line-height: 1.5; white-space: nowrap; pointer-events: none;
+}
+.exp-dt-copied.exp-dt-copy-failed { background: var(--exp-bad, #9a1f1f); }
+.exp-dt-body tr:first-child .exp-dt-copied { top: auto; bottom: -1.6em; }
 
 @media (prefers-reduced-motion: reduce) {
     .exp-dt *, .exp-dt-menu, .exp-dt-dialog { transition: none !important; animation: none !important; }

@@ -318,8 +318,11 @@
         var sel = this.select = o.select ? $.extend({ key: 'select', name: '', className: 'exp-dt-check', value: null,
                                                          label: null, header: true, ranges: true }, o.select === 'checkbox' || o.select === true ? {} : o.select) : null;
         if (sel && !this.column(sel.key)) { this.columns.unshift({ key: sel.key, label: '', sortable: false }); }
+        // the order the columns were defined in: Table options lists them so, whatever order they are shown in
+        this.defOrder = this.columns.slice();
 
-        // shown columns from columnToggle: only the ones with a label can be hidden
+        // shown columns from columnToggle: only the ones with a label can be hidden; ordered: true also puts the
+        // shown ones in the order of the list
         var ct = o.columnToggle;
         if (ct) {
             var shown = ct.shown;
@@ -329,6 +332,7 @@
             }
             if (shown && shown.length) {
                 this.columns.forEach(function (c) { if (c.label && shown.indexOf(c.key) === -1) { c.hidden = true; } });
+                if (ct.ordered) { this.applyOrder(shown); }
             }
             this.shownKeys = shown || null;
         }
@@ -376,12 +380,34 @@
         return null;
     };
 
+    /**
+     * Puts the columns in the order of keys: the ones without a label (selection, row menu) stay first, then the
+     * keys in their order, then the rest in their defined order.
+     */
+    DataTable.prototype.applyOrder = function (keys) {
+        var fixed = [], listed = [], rest = [];
+        this.defOrder.forEach(function (c) {
+            if (!c.label) { fixed.push(c); } else if (keys.indexOf(c.key) === -1) { rest.push(c); }
+        });
+        keys.forEach(function (k) {
+            for (var i = 0; i < this.defOrder.length; i++) {
+                var c = this.defOrder[i];
+                if (c.key === k && c.label && listed.indexOf(c) === -1) { listed.push(c); break; }
+            }
+        }, this);
+        this.columns = fixed.concat(listed, rest);
+    };
+
+    /** A column's alignment class: align: 'right' or 'center'. */
+    function alignClass(c) { return c.align === 'right' || c.align === 'center' ? ' exp-dt-align-' + c.align : ''; }
+
     DataTable.prototype.buildHead = function () {
         var self = this, $tr = $('<tr></tr>');
         this.columns.forEach(function (c) {
-            var $th = $('<th scope="col"></th>').attr('data-key', c.key).addClass('exp-dt-col-' + c.key);
+            var $th = $('<th scope="col"></th>').attr('data-key', c.key).addClass('exp-dt-col-' + c.key + alignClass(c));
             if (c.className) { $th.addClass(c.className); }
             if (c.headerClassName) { $th.addClass(c.headerClassName); }
+            if (c.title) { $th.attr('title', c.title); }
             if (self.select && c.key === self.select.key) {
                 $th.addClass('exp-dt-col-select');
                 if (self.select.header) {
@@ -399,7 +425,9 @@
             if (c.hidden) { $th.prop('hidden', true); }
             $tr.append($th);
         });
-        this.$head = $('<thead></thead>').append($tr).appendTo(this.$table);
+        var $head = $('<thead></thead>').append($tr);
+        if (this.$head) { this.$head.replaceWith($head); } else { $head.appendTo(this.$table); }
+        this.$head = $head;
         this.updateSortHeads();
     };
 
@@ -584,33 +612,238 @@
             }
             $bd.append($fs);
         }
-        if (to.columns) {
-            var $cf = $('<fieldset></fieldset>').append($('<legend></legend>').text(to.columns.legend || t('Visible table columns:')));
-            var $cb = $('<div class="block"></div>').appendTo($cf);
-            this.columns.forEach(function (col, i) {
-                if (!col.label || !col.key || col.toggle === false) { return; }
-                var shown = self.shownKeys ? self.shownKeys.indexOf(col.key) !== -1 : false;
-                var $x = $('<input type="checkbox" name="TableOptionColumn" />').attr({ id: 'table-option-col-btn-' + i, value: col.key }).prop('checked', shown);
-                $x.on('click', function () {
-                    if (this.checked) { self.showColumn(col.key); } else { self.hideColumn(col.key); }
-                    var keys = $cb.find('input[name="TableOptionColumn"]:checked').map(function () { return this.value; }).get();
-                    self.saveColumns(keys);
-                });
-                $cb.append($('<div class="table-options-row"></div>').append(
-                    $('<span class="table-options-key"></span>').append($('<label></label>').attr('for', 'table-option-col-btn-' + i).text(col.label)),
-                    $('<span class="table-options-value"></span>').append($x)));
-            });
+        if (to.presets) {
+            this.$presets = $('<fieldset class="exp-dt-presets"></fieldset>');
             if (lim) { $bd.append('<br />'); }
+            $bd.append(this.$presets);
+            this.renderPresets();
+        }
+        if (to.columns) {
+            var C = to.columns;
+            var $cf = $('<fieldset class="exp-dt-columns"></fieldset>').append($('<legend></legend>').text(C.legend || t('Visible table columns:')));
+            if (C.filter) {
+                var F = $.extend({ label: t('Find a column'), placeholder: '' }, C.filter === true ? {} : C.filter);
+                var $fi = $('<input type="search" class="exp-dt-column-filter" autocomplete="off" />').attr({ id: ids + '-filter', placeholder: F.placeholder });
+                $cf.append($('<div class="exp-dt-column-filter-row"></div>').append(
+                    $('<label></label>').attr('for', ids + '-filter').text(F.label), ' ', $fi));
+                $fi.on('input', function () { self.filterOptionColumns($fi.val()); });
+                $fi.on('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); } });
+                this.$columnFilter = $fi;
+            }
+            this.$columnList = $('<div class="block exp-dt-column-list"></div>').appendTo($cf);
+            if (lim || to.presets) { $bd.append('<br />'); }
             $bd.append($cf);
+            var ct = this.o.columnToggle || {};
+            if (ct.ordered) {
+                var Or = $.extend({ legend: t('Order of the shown columns:'), hint: t('Drag a column, or use its buttons.') }, C.order || {});
+                var $of = $('<fieldset class="exp-dt-order-fieldset"></fieldset>').append($('<legend></legend>').text(Or.legend));
+                if (Or.hint) { $of.append($('<p class="exp-dt-order-hint"></p>').text(Or.hint)); }
+                this.$orderList = $('<ol class="exp-dt-order"></ol>').appendTo($of);
+                $bd.append('<br />', $of);
+                this.bindOrderList();
+            }
+            this.renderOptionColumns();
         }
         var $close = $('<button type="button" class="exp-dt-dialog-close"></button>').text(to.close || t('Close'));
-        $d.append($('<div class="exp-dt-dialog-footer"></div>').append($close));
+        var $footer = $('<div class="exp-dt-dialog-footer"></div>');
+        (to.buttons || []).forEach(function (b) {
+            var $b = $('<button type="button" class="exp-dt-dialog-close exp-dt-dialog-button"></button>').text(b.label || '');
+            if (b.id) { $b.attr('id', b.id); }
+            if (b.title) { $b.attr('title', b.title); }
+            $b.on('click', function (e) { e.preventDefault(); if (isFn(b.onClick)) { b.onClick.call(self, self, e); } });
+            $footer.append($b, ' ');
+        });
+        $d.append($footer.append($close));
+        if (to.presets || (to.columns && (to.columns.filter || (this.o.columnToggle || {}).ordered))) { $d.addClass('exp-dt-dialog-wide'); }
         $close.on('click', function () { self.closeOptions(); });
         $d.on('cancel', function (e) { e.preventDefault(); self.closeOptions(); });
         $d.on('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); self.closeOptions(); } });
         $d.on('click', function (e) { if (e.target === $d[0] && to.backdropCloses) { self.closeOptions(); } });
         (to.container ? $(to.container).first() : this.$root).append($d);
         this.$options = $d;
+    };
+
+    /** Keeps the focus on "the same" control when part of the dialog is drawn again. */
+    function keepFocus($scope, draw) {
+        var a = document.activeElement, sel = null;
+        if (a && $scope[0] && $scope[0].contains(a)) {
+            var key = a.getAttribute('data-key') || a.value, role = a.getAttribute('data-role') || a.getAttribute('name');
+            sel = { key: key, role: role };
+        }
+        draw();
+        if (sel) {
+            var $t = $scope.find('[data-role="' + sel.role + '"][data-key="' + sel.key + '"], [name="' + sel.role + '"][value="' + sel.key + '"]').filter(':enabled').first();
+            if (!$t.length) { $t = $scope.find('[data-role="' + sel.role + '"]').filter(':enabled').first(); }
+            if ($t.length) { $t[0].focus(); }
+        }
+    }
+
+    /** Table options: the column check boxes, grouped by each column's group, and the order list. */
+    DataTable.prototype.renderOptionColumns = function () {
+        var self = this, $cb = this.$columnList, C = (this.o.tableOptions || {}).columns || {}, ct = this.o.columnToggle || {};
+        if (!$cb) { return; }
+        keepFocus($cb, function () {
+            $cb.empty();
+            var groups = [], byGroup = {};
+            self.defOrder.forEach(function (col, i) {
+                if (!col.label || !col.key || col.toggle === false) { return; }
+                var g = col.group || '';
+                if (!Object.prototype.hasOwnProperty.call(byGroup, g)) { byGroup[g] = []; groups.push(g); }
+                byGroup[g].push({ col: col, i: i });
+            });
+            var grouped = groups.length > 1 || (groups.length === 1 && groups[0] !== '');
+            groups.forEach(function (g, gi) {
+                var $target = $cb;
+                if (grouped) {
+                    var gid = self.id + '-colgroup-' + gi;
+                    $target = $('<div class="exp-dt-column-group" role="group"></div>').attr('aria-labelledby', gid).appendTo($cb);
+                    $target.append($('<h3 class="exp-dt-column-group-title"></h3>').attr('id', gid).text(g || C.otherGroup || t('Other')));
+                }
+                byGroup[g].forEach(function (entry) {
+                    var col = entry.col, id = 'table-option-col-btn-' + entry.i;
+                    var $x = $('<input type="checkbox" name="TableOptionColumn" />').attr({ id: id, value: col.key }).prop('checked', !col.hidden);
+                    $x.on('click', function () {
+                        var keys;
+                        if (ct.ordered) {
+                            keys = self.shownColumns().filter(function (k) { return k !== col.key; });
+                            if (this.checked) { keys.push(col.key); }
+                        } else {
+                            keys = $cb.find('input[name="TableOptionColumn"]:checked').map(function () { return this.value; }).get();
+                        }
+                        self.setShown(keys);
+                    });
+                    var $label = $('<label></label>').attr('for', id).text(col.label);
+                    if (col.title) { $label.attr('title', col.title); }
+                    $target.append($('<div class="table-options-row"></div>')
+                        .attr('data-search', (col.label + ' ' + (col.group || '') + ' ' + (col.title || '')).toLowerCase())
+                        .append($('<span class="table-options-key"></span>').append($label),
+                                $('<span class="table-options-value"></span>').append($x)));
+                });
+            });
+            $cb.append($('<p class="exp-dt-column-none" hidden="hidden"></p>').text((C.filter && C.filter.none) || t('No columns found.')));
+        });
+        if (this.$columnFilter) { this.filterOptionColumns(this.$columnFilter.val()); }
+        this.renderOrderList();
+    };
+
+    /** Shows only the column check boxes whose name (or group, or description) has the text. */
+    DataTable.prototype.filterOptionColumns = function (text) {
+        var needle = String(text || '').replace(/^\s+|\s+$/g, '').toLowerCase(), $cb = this.$columnList, any = false;
+        if (!$cb) { return; }
+        $cb.find('.table-options-row').each(function () {
+            var on = !needle || this.getAttribute('data-search').indexOf(needle) !== -1;
+            this.hidden = !on;
+            if (on) { any = true; }
+        });
+        $cb.find('.exp-dt-column-group').each(function () {
+            this.hidden = $(this).find('.table-options-row').filter(function () { return !this.hidden; }).length === 0;
+        });
+        $cb.find('.exp-dt-column-none').prop('hidden', any);
+    };
+
+    /** The shown columns in their order: drag one to another place, or move it with its up and down buttons. */
+    DataTable.prototype.renderOrderList = function () {
+        var self = this, $ol = this.$orderList;
+        if (!$ol) { return; }
+        var O = $.extend({ up: t('Move %name up'), down: t('Move %name down') }, ((this.o.tableOptions || {}).columns || {}).order || {});
+        keepFocus($ol, function () {
+            $ol.empty();
+            var keys = self.shownColumns();
+            keys.forEach(function (k, i) {
+                var c = self.column(k), name = c.label || k;
+                var $li = $('<li class="exp-dt-order-item" draggable="true"></li>').attr('data-key', k);
+                $li.append($('<span class="exp-dt-order-handle" aria-hidden="true"></span>'),
+                           $('<span class="exp-dt-order-label"></span>').text(name),
+                           $('<button type="button" class="exp-dt-order-up" data-role="exp-dt-order-up">↑</button>')
+                               .attr({ 'data-key': k, 'aria-label': O.up.replace('%name', name), title: O.up.replace('%name', name) }).prop('disabled', i === 0),
+                           $('<button type="button" class="exp-dt-order-down" data-role="exp-dt-order-down">↓</button>')
+                               .attr({ 'data-key': k, 'aria-label': O.down.replace('%name', name), title: O.down.replace('%name', name) }).prop('disabled', i === keys.length - 1));
+                $ol.append($li);
+            });
+        });
+    };
+
+    DataTable.prototype.bindOrderList = function () {
+        var self = this, $ol = this.$orderList, dragKey = null;
+        var clear = function () { $ol.find('.exp-dt-drop-before, .exp-dt-drop-after, .exp-dt-dragging').removeClass('exp-dt-drop-before exp-dt-drop-after exp-dt-dragging'); };
+        $ol.on('click', 'button.exp-dt-order-up, button.exp-dt-order-down', function (e) {
+            e.preventDefault();
+            self.moveColumn(this.getAttribute('data-key'), $(this).hasClass('exp-dt-order-up') ? -1 : 1);
+        });
+        $ol.on('dragstart', 'li.exp-dt-order-item', function (e) {
+            dragKey = this.getAttribute('data-key');
+            var dt = e.originalEvent && e.originalEvent.dataTransfer;
+            if (dt) { dt.effectAllowed = 'move'; try { dt.setData('text/plain', dragKey); } catch (x) { /* old browsers */ } }
+            $(this).addClass('exp-dt-dragging');
+        });
+        $ol.on('dragover', 'li.exp-dt-order-item', function (e) {
+            if (dragKey === null) { return; }
+            e.preventDefault();
+            var dt = e.originalEvent && e.originalEvent.dataTransfer;
+            if (dt) { dt.dropEffect = 'move'; }
+            var r = this.getBoundingClientRect(), after = (e.originalEvent || e).clientY > r.top + r.height / 2;
+            $ol.find('.exp-dt-drop-before, .exp-dt-drop-after').not(this).removeClass('exp-dt-drop-before exp-dt-drop-after');
+            $(this).toggleClass('exp-dt-drop-after', after).toggleClass('exp-dt-drop-before', !after);
+        });
+        $ol.on('drop', 'li.exp-dt-order-item', function (e) {
+            if (dragKey === null) { return; }
+            e.preventDefault();
+            var target = this.getAttribute('data-key'), after = $(this).hasClass('exp-dt-drop-after');
+            var keys = self.shownColumns().filter(function (k) { return k !== dragKey; });
+            var at = keys.indexOf(target);
+            if (target !== dragKey && at !== -1) {
+                keys.splice(after ? at + 1 : at, 0, dragKey);
+                clear();
+                dragKey = null;
+                self.setShown(keys);
+            }
+        });
+        $ol.on('dragend', function () { dragKey = null; clear(); });
+    };
+
+    /** Table options: choose a preset, save the shown columns as one, delete one of your own. */
+    DataTable.prototype.renderPresets = function () {
+        var self = this, $fs = this.$presets, P = $.extend({
+            legend: t('Column presets:'), none: t('No preset'), choose: t('Preset'), name: t('Name of the new preset'),
+            saveAs: t('Save current as...'), remove: t('Delete'), items: [], current: null
+        }, (this.o.tableOptions || {}).presets || {});
+        if (!$fs) { return; }
+        var items = (isFn(P.items) ? P.items.call(this, this) : P.items) || [];
+        var current = isFn(P.current) ? P.current.call(this, this) : P.current;
+        var find = function (id) { for (var i = 0; i < items.length; i++) { if (String(items[i].id) === String(id)) { return items[i]; } } return null; };
+        keepFocus($fs, function () {
+            $fs.empty().append($('<legend></legend>').text(P.legend));
+            var sid = self.id + '-preset', nid = self.id + '-preset-name';
+            var $sel = $('<select class="exp-dt-preset-select" data-role="exp-dt-preset-select" data-key="s"></select>').attr('id', sid)
+                .append($('<option value=""></option>').text(P.none));
+            items.forEach(function (it) { $sel.append($('<option></option>').attr('value', it.id).text(it.name)); });
+            $sel.val(current !== null && current !== undefined && find(current) ? String(current) : '');
+            var $del = $('<button type="button" class="exp-dt-dialog-close exp-dt-preset-delete" data-role="exp-dt-preset-delete" data-key="d"></button>').text(P.remove);
+            var syncDel = function () { var it = find($sel.val()); $del.prop('disabled', !(it && it.own)); };
+            syncDel();
+            $sel.on('change', function () {
+                syncDel();
+                var it = find($sel.val());
+                if (it && isFn(P.onApply)) { P.onApply.call(self, it, self); }
+            });
+            $del.on('click', function () {
+                var it = find($sel.val());
+                if (!it || !it.own || !isFn(P.onDelete)) { return; }
+                Promise.resolve(P.onDelete.call(self, it, self)).then(function () { self.renderPresets(); });
+            });
+            var $name = $('<input type="text" class="exp-dt-preset-name" data-role="exp-dt-preset-name" data-key="n" maxlength="60" />').attr({ id: nid, placeholder: P.name });
+            var $save = $('<button type="button" class="exp-dt-dialog-close exp-dt-preset-save" data-role="exp-dt-preset-save" data-key="v"></button>').text(P.saveAs);
+            var save = function () {
+                var name = String($name.val()).replace(/^\s+|\s+$/g, '');
+                if (!name) { $name[0].focus(); return; }
+                if (!isFn(P.onSave)) { return; }
+                Promise.resolve(P.onSave.call(self, name, self.shownColumns(), self)).then(function () { self.renderPresets(); });
+            };
+            $save.on('click', save);
+            $name.on('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); save(); } });
+            $fs.append($('<div class="exp-dt-preset-row"></div>').append($('<label></label>').attr('for', sid).text(P.choose), ' ', $sel, ' ', $del),
+                       $('<div class="exp-dt-preset-row"></div>').append($('<label class="exp-visually-hidden"></label>').attr('for', nid).text(P.name), $name, ' ', $save));
+        });
     };
 
     DataTable.prototype.openOptions = function () {
@@ -659,6 +892,92 @@
     };
     DataTable.prototype.visibleColumns = function () {
         return this.columns.filter(function (c) { return !c.hidden; }).map(function (c) { return c.key; });
+    };
+    /** The shown columns that can be toggled (they have a label), in the order they are shown. */
+    DataTable.prototype.shownColumns = function () {
+        return this.columns.filter(function (c) { return !c.hidden && c.label && c.toggle !== false; }).map(function (c) { return c.key; });
+    };
+
+    /**
+     * Shows exactly the columns keys (the others with a label are hidden); with columnToggle.ordered also in that
+     * order. A column with remote: true that was hidden loads the rows again (the server sends only shown columns),
+     * any other change only draws the rows again. opts.save: false does not save the choice.
+     */
+    DataTable.prototype.setShown = function (keys, opts) {
+        opts = opts || {};
+        var self = this, ct = this.o.columnToggle || {}, before = this.visibleColumns(), reload = false;
+        keys = (keys || []).filter(function (k) { var c = self.column(k); return c && c.label && c.toggle !== false; });
+        this.columns.forEach(function (c) {
+            if (!c.label || c.toggle === false) { return; }
+            var hide = keys.indexOf(c.key) === -1;
+            if (!hide && c.hidden && c.remote) { reload = true; }
+            c.hidden = hide;
+        });
+        if (ct.ordered) { this.applyOrder(keys); }
+        this.shownKeys = keys.slice();
+        if (this.visibleColumns().join(',') !== before.join(',') || reload) {
+            this.cancelEdit();
+            this.buildHead();
+            this.updateMessageSpan();
+            if (reload) { this.load(); } else { this.render(); }
+        }
+        if (this.$options) { this.renderOptionColumns(); }
+        if (opts.save !== false) { this.saveColumns(keys); }
+        return keys;
+    };
+
+    /** Moves a shown column by delta places (-1 earlier, 1 later) among the shown ones. */
+    DataTable.prototype.moveColumn = function (key, delta) {
+        var keys = this.shownColumns(), i = keys.indexOf(key), j = i + delta;
+        if (i === -1 || j < 0 || j >= keys.length) { return false; }
+        keys.splice(i, 1);
+        keys.splice(j, 0, key);
+        this.setShown(keys);
+        return true;
+    };
+
+    // ---- copying a cell ----------------------------------------------------------------------------------
+
+    DataTable.prototype.copyTexts = function () {
+        return $.extend({ title: t('Click to copy'), done: t('Copied'), failed: t('Not copied') }, this.o.copy || {});
+    };
+
+    /** The text a copy cell puts on the clipboard: copy(row) when copy is a function, else the row's value. */
+    DataTable.prototype.copyValue = function (c, row, $td) {
+        var v = isFn(c.copy) ? c.copy.call(this, row, c, this) : row[c.key];
+        if (v === undefined || v === null) { return ''; }
+        if (typeof v === 'object') { v = Array.isArray(v) ? v.join(', ') : JSON.stringify(v); }
+        return String(v);
+    };
+
+    /** Puts the cell's value on the clipboard and says so in a small confirmation; a Promise of true or false. */
+    DataTable.prototype.copyCell = function (td) {
+        var $td = $(td), row = $.data($td.closest('tr')[0], 'expRow'), c = this.column($td.attr('data-key'));
+        if (!row || !c || !c.copy) { return Promise.resolve(false); }
+        var self = this, text = this.copyValue(c, row, $td), T = this.copyTexts();
+        var fallback = function () {
+            var ta = document.createElement('textarea'), ok = false;
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+            document.body.removeChild(ta);
+            return ok;
+        };
+        var p = window.navigator.clipboard && window.isSecureContext !== false
+            ? window.navigator.clipboard.writeText(text).then(function () { return true; }, function () { return fallback(); })
+            : Promise.resolve(fallback());
+        return p.then(function (ok) {
+            $td.find('.exp-dt-copied').remove();
+            var $note = $('<span class="exp-dt-copied" aria-hidden="true"></span>').toggleClass('exp-dt-copy-failed', !ok).text(ok ? T.done : T.failed);
+            $td.append($note);
+            window.setTimeout(function () { $note.remove(); }, 1400);
+            self.announce(ok ? T.done : T.failed);
+            self.emit('copy', { row: row, key: c.key, text: text, copied: ok });
+            return ok;
+        });
     };
 
     // ---- data ----------------------------------------------------------------------------------------------
@@ -810,9 +1129,14 @@
                 self.columns.forEach(function (c) {
                     var td = document.createElement('td'), $td = $(td);
                     td.setAttribute('data-key', c.key);
-                    td.className = 'exp-dt-col-' + c.key + (c.className ? ' ' + c.className : '');
+                    td.className = 'exp-dt-col-' + c.key + alignClass(c) + (c.className ? ' ' + c.className : '');
                     if (c.hidden) { td.hidden = true; }
                     self.renderCell(c, row, $td);
+                    if (c.copy && self.copyValue(c, row, $td) !== '') {
+                        td.className += ' exp-dt-copy';
+                        td.tabIndex = 0;
+                        td.title = self.copyTexts().title;
+                    }
                     if (editableType(c) && self.canEdit(row)) {
                         td.className += ' exp-dt-editable';
                         td.tabIndex = 0;
@@ -1004,13 +1328,20 @@
 
     DataTable.prototype.bind = function () {
         var self = this;
-        this.$head.on('click', 'button.exp-dt-sort', function (e) {
+        // on the table, not the header: the header is built again when the columns change order
+        this.$table.on('click', 'thead button.exp-dt-sort', function (e) {
             e.preventDefault();
             self.sortBy($(this).closest('th').attr('data-key'));
         });
-        if (this.$all) {
-            this.$all.on('click', function () { self.selectAll(this.checked); });
-        }
+        this.$table.on('click', 'thead input.exp-dt-check-all', function () { self.selectAll(this.checked); });
+        // cells with copy: a click (or Enter / Space on the focused cell) puts the value on the clipboard
+        this.$body.on('click', 'td.exp-dt-copy', function (e) {
+            if ($(e.target).closest('a, input, button, select, textarea').length) { return; }
+            self.copyCell(this);
+        });
+        this.$body.on('keydown', 'td.exp-dt-copy', function (e) {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target === this) { e.preventDefault(); self.copyCell(this); }
+        });
         this.$body.on('click', 'td[data-key] input[type=checkbox]', function (e) {
             if (!self.select || $(this).closest('td').attr('data-key') !== self.select.key) { return; }
             var all = self.checks(), i = all.index(this);

@@ -131,6 +131,11 @@ Options
 | `editable` | `true`, `'number'`, `'text'` or `{ type, validate(raw, old, row) }` (return `undefined` for invalid) |
 | `className`, `headerClassName` | more classes on its cells, on its header cell |
 | `toggle` | `false` keeps it out of Table options |
+| `group` | the heading it is listed under in Table options (columns of one group together) |
+| `title` | a description: the header cell's and the Table options label's tooltip; the column filter searches it too |
+| `align` | `'right'` or `'center'`: class `exp-dt-align-<align>` on its header and cells |
+| `copy` | `true` (the row's value) or `copy(row, column, table)` returning the text: a click on the cell, or Enter or Space on it, puts the text on the clipboard and shows a short confirmation (`copy: { title, done, failed }` among the table options gives the texts) |
+| `remote` | the server sends this column's data only while it is shown: showing it loads the rows again |
 
 ### Sources
 
@@ -186,6 +191,13 @@ column not in `shown`, and calls `save` with the shown keys whenever Table optio
 `{ pref: 'my_columns' }` reads and saves a user preference instead (`Exp.prefs`, comma separated;
 ask for it with `{exp_config( hash( 'prefs', array( 'my_columns' ) ) )}`).
 
+`ordered: true` also puts the shown columns in the order of `shown` (the columns without a label,
+such as the selection and the row menu, stay first). Table options then lists the shown columns in
+their order: drag one to another place, or use its up and down buttons. `table.setShown(keys)`
+shows exactly `keys` (in that order when ordered), `table.moveColumn(key, -1 | 1)` moves one, and
+`table.shownColumns()` gives the shown, toggleable keys in their order. A change saves through
+`save`, rebuilds the header and draws the rows again (or loads them, for a `remote` column).
+
 ### Inline editing
 
 | | |
@@ -240,6 +252,29 @@ YUI dialog (`TableOptionValue`, `table-option-row-btn-<id>`, `table-option-custo
 custom number is taken on Enter or when the field is left; outside 1 to `max`, `window.alert(invalid)`
 says so, as before.
 
+More, for a table with many columns (the admin's sub items):
+
+```js
+tableOptions: {
+    columns: { legend: 'Visible table columns:',
+               filter: { label: 'Find a column:', placeholder: 'Column name', none: 'No columns match.' },
+               otherGroup: 'Other',                                          // the heading of columns without a group
+               order: { legend: 'Order of the visible columns:', hint: 'Drag a column ...', up: 'Move %name up', down: 'Move %name down' } },
+    presets: { legend: 'Column presets:', choose: 'Preset', none: 'None', name: 'Name of the new preset',
+               saveAs: 'Save current as...', remove: 'Delete preset',
+               items: function () { return [{ id: 'seo', name: 'SEO', own: false, columns: ['name', 'url'] }]; },
+               current: function () { return null; },                   // the chosen preset's id
+               onApply: function (item) { this.setShown(item.columns); },
+               onSave: function (name, keys) { return Promise.resolve(); },  // then the list is drawn again
+               onDelete: function (item) { return Promise.resolve(); } },    // only for own: true
+    buttons: [{ id: 'my-export', label: 'Export CSV', onClick: function (table) {} }]   // left in the footer
+}
+```
+
+With any of these the dialog is wider and its body scrolls. The columns are listed by `group`, the
+filter hides the ones whose label, group or `title` do not have the text, and with
+`columnToggle.ordered` a list of the shown columns lets them be put in order.
+
 ### Filter
 
 `filter: { container: '#action-filter', delay: 400, attrs: { id: 'action-filter-input', size: 40 } }`
@@ -256,6 +291,7 @@ table.setPage(2);  table.setLimit(50);  table.sortBy('name', 'desc');  table.set
 table.page();  table.pages();  table.total;  table.stateCopy();
 table.rows();  table.selected();  table.selectAll(true);  table.invert();
 table.showColumn('priority');  table.hideColumn('priority');  table.visibleColumns();
+table.setShown(['name', 'priority']);  table.moveColumn('priority', -1);  table.shownColumns();  table.copyCell(td);
 table.openOptions();  table.closeOptions();  table.action('ezbtn-more');
 table.destroy();
 ```
@@ -278,6 +314,7 @@ Fired on the table's element and through `Exp.on()`, with `table` (the element) 
 | `exp:datatable:invalid` | `{ row, key, value }` when a value was refused |
 | `exp:datatable:columns` | `{ shown }` after Table options changed the columns |
 | `exp:datatable:options` | `{ open }` |
+| `exp:datatable:copy` | `{ row, key, text, copied }` after a copy cell was clicked |
 | `exp:datatable:error` | `{ error, state }` (loading) or `{ error, row, key, value }` (saving) |
 
 ```js

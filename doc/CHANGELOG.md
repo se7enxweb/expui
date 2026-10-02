@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Added
+- `exp::datatable`: ordered columns (`columnToggle.ordered`, `setShown()`,
+  `moveColumn()`, `shownColumns()`), with an order list in Table options that
+  takes drag and drop or up and down buttons; columns in groups, a column
+  filter, presets (`tableOptions.presets`) and footer buttons
+  (`tableOptions.buttons`) in Table options; columns that copy their value on a
+  click (`copy`), aligned columns (`align`), descriptions (`title`), and
+  `remote` columns that load the rows again when shown. Used by the admin's
+  sub items table for the subitems column registry.
+  [modules/datatable.md](modules/datatable.md)
+
 1.0.0.1 (2026-10-01)
 --------------------
 
