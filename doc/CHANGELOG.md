@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+1.0.0.4 (2026-10-02)
+--------------------
 
 Added
 - `exp::datatable`: ordered columns (`columnToggle.ordered`, `setShown()`,
