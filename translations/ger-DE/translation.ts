@@ -183,5 +183,9 @@
         <source>This type of file is not accepted.</source>
         <translation>Dieser Dateityp wird nicht akzeptiert.</translation>
     </message>
+    <message>
+        <source>Exp test %n of %m</source>
+        <translation>Exp-Test %n von %m</translation>
+    </message>
 </context>
 </TS>
