@@ -1,43 +1,11 @@
 <?php
 /**
- * @package expUI
- * @author  7x <info@se7enx.com>
- * @date    01 Oct 2026
+ * Entry point of extension/expui/modules/expui/test.php
  *
- * expui/test: the Exp API's unit tests, run in the browser on a real admin page (the admin's own jQuery 3 next to
- * jQuery 4). expui/test/echo answers a POST with the fields it got, as JSON, for the Exp.io.form() tests.
- * No function or class is declared here, so the view can run many times in one PHP process.
- **/
+ * @copyright Copyright (C) 1998 - 2026 7x and the Exponential Foundation. All rights reserved.
+ * @license GNU General Public License v2.0 (or any later version)
+ * @package expUI
+ */
 
-$http = eZHTTPTool::instance();
-
-if ( isset( $Params['Action'] ) && $Params['Action'] === 'echo' )
-{
-    $fields = array();
-    foreach ( $_POST as $name => $value )
-    {
-        if ( $name !== 'ezxform_token' )
-        {
-            $fields[$name] = is_array( $value ) ? $value : (string)$value;
-        }
-    }
-    $files = array();
-    foreach ( $_FILES as $name => $file )
-    {
-        $files[$name] = array( 'name' => (string)$file['name'], 'size' => (int)$file['size'] );
-    }
-    while ( @ob_end_clean() );
-    header( 'Content-Type: application/json; charset=utf-8' );
-    echo json_encode( array( 'method' => $_SERVER['REQUEST_METHOD'], 'fields' => $fields, 'files' => $files,
-                             'token' => $http->hasPostVariable( 'ezxform_token' ) ) );
-    eZExecution::cleanExit();
-}
-
-$tpl = eZTemplate::factory();
-$tpl->setVariable( 'expected_siteaccess', is_array( eZSiteAccess::current() ) ? eZSiteAccess::current()['name'] : '' );
-$tpl->setVariable( 'expected_root', eZSys::indexDir() . '/' );
-$tpl->setVariable( 'test_pref', (string)eZPreferences::value( 'exp_test_pref' ) );
-
-$Result = array();
-$Result['content'] = $tpl->fetch( 'design:expui/test.tpl' );
-$Result['path'] = array( array( 'text' => 'Exponential UI', 'url' => false ), array( 'text' => 'Tests', 'url' => false ) );
+// The code is in extension/expui/classes/runnable/views/expui/test.php (#207); this file is the entry point.
+return \Exponential\View\Extension\Expui\Expui\Test::main( __FILE__, get_defined_vars() );
