@@ -2,8 +2,8 @@
  * Exponential UI (expui) dialog — modal dialogs on the native <dialog> element.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::dialog after exp::core (Exp.dialog.form also needs exp::io). Replaces YUI 2's Dialog and
- * SimpleDialog and YUI 3's ezmodalwindow (Y.eZ.ModalWindow):
+ * Loaded by exp::dialog after exp::core (Exp.dialog.form also needs exp::io). The admin dialogs:
+ * simple dialogs and the modal window:
  *
  *   Exp.dialog.open({ title, content | url | template, buttons: [{ label, value, primary, danger }], size: 'm',
  *                     onClose })                                    -> Promise<value>   (dismissed: null)

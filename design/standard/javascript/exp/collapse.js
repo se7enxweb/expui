@@ -2,7 +2,7 @@
  * Exponential UI (expui) collapse — a menu or panel that collapses and expands, remembered per user.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::collapse after exp::core. Replaces YUI 3's ezcollapsiblemenu (Y.eZ.CollapsibleMenu) with the same
+ * Loaded by exp::collapse after exp::core. Takes the configuration the admin templates give it, with the same
  * configuration, so a template moves over by changing one line:
  *
  *   Exp.collapse({

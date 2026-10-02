@@ -81,7 +81,7 @@
         Exp.datepicker.close();
     });
 
-    test('datepicker: previous and next month, and no dates before 1970 (as YUI\'s mindate)', function (t) {
+    test('datepicker: previous and next month, and no dates before 1970 (the minimum date)', function (t) {
         fields(true);
         document.getElementsByName('T_datetime_year_9')[0].value = '1970';
         document.getElementsByName('T_datetime_month_9')[0].value = '1';

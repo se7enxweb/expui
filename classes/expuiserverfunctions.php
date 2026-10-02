@@ -40,7 +40,7 @@ class expUIServerFunctions
 
     /**
      * The packer's question: -1 for the functions that add files to the pack (they must run at once, while the
-     * pack is put together, as ezjsc::yui3 and ezjsc::jquery do); the file's time for those that return code
+     * pack is put together, as ezjsc::jquery does); the file's time for those that return code
      * (their output is cached in the pack, in order).
      *
      * @param string $fn

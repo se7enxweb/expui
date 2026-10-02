@@ -2,8 +2,8 @@
  * Exponential UI (expui) upload — files uploaded with progress per file, cancel, several files and drop zones.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::upload after exp::core (and exp::io, for its error type). Replaces YUI 3's ezajaxuploader upload
- * step (io-upload-iframe) and ezmultiupload's YUI uploader:
+ * Loaded by exp::upload after exp::core (and exp::io, for its error type). The admin relation uploader's upload
+ * step and ezmultiupload's uploader:
  *
  *   $(el).expUpload({
  *       url: '/admin/ezmultiupload/upload/327',   where each file is POSTed (one request per file)

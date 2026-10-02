@@ -36,7 +36,7 @@
         var D = Exp.datatable;
         t.equal(D.formatDate(new Date(2026, 0, 5, 7, 3), '%d.%m.%Y %H:%M'), '05.01.2026 07:03', 'date');
         t.equal(D.formatDate('nonsense', '%d'), '', 'no date');
-        t.equal(D.validateNumber('15'), 15); t.equal(D.validateNumber(' 7 '), 7); t.equal(D.validateNumber(''), 0, '"" is 0, as YUI');
+        t.equal(D.validateNumber('15'), 15); t.equal(D.validateNumber(' 7 '), 7); t.equal(D.validateNumber(''), 0, '"" is 0');
         t.equal(D.validateNumber('abc'), undefined, 'not a number');
         t.equal(D.normalizeOffset(10, 12, 25), 0, 'a page boundary');
         t.equal(D.normalizeOffset(30, 100, 25), 25);

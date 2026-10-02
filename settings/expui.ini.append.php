@@ -17,7 +17,7 @@ ExternalIntegrity[jquery]=sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaq
 ExternalIntegrity[migrate]=sha384-j1JGhEtpRFQa6jnqPcEWt92tLBipLPhYYJxOL/bmH3VrUmV++ZHPOXLcrjVMkuo6
 ExternalIntegrity[jqueryUI]=sha384-tBcEcHGtNy7/Mx08+YxuvQ6v6s0N2jgehtFiT+bLtGwTj/txXtB/L5GqXfggm5sS
 
-# jQuery Migrate 4 on top of jQuery 4: enabled while YUI and jQuery 3 code is ported (it restores some
+# jQuery Migrate 4 on top of jQuery 4: enabled while jQuery 3 code is ported (it restores some
 # removed APIs and warns in the browser console about each use), disabled when the port is done.
 Migrate=enabled
 

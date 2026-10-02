@@ -2,8 +2,8 @@
  * Exponential UI (expui) sticky — a toolbar that stays in view while the page scrolls, and a "back to top" link.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::sticky after exp::core. Replaces fixed_toolbar.js (YUI 3 event, node-screen, node-style,
- * selector-css3, transition) with the same behaviour, so the admin's styles and other extensions that read the
+ * Loaded by exp::sticky after exp::core. Keeps the edit toolbar in view (
+in view, with the same behaviour, so the admin's styles and other extensions that read the
  * toolbar's state (ezautosave's preview) keep working:
  *
  *   $('#controlbar-top').expSticky({

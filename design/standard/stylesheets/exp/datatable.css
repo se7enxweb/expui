@@ -2,7 +2,7 @@
  * Exponential UI (expui) exp::datatable styles. Uses the --exp-* tokens of exp/core.css.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * The look is the one the admin designs gave YUI's DataTable, Paginator, menu buttons and dialog, so a table moved
+ * The look is the admin designs' own table, paginator, menu buttons and dialog, so a table moved
  * to $.fn.expDataTable looks as before. Every colour is a custom property (--exp-dt-*) on .exp-dt, overridable on
  * :root, .exp-scope or the table's own element.
  */

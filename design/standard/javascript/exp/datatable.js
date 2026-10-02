@@ -3,7 +3,7 @@
  * action menus, on jQuery 4.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::datatable after exp::core (and exp::io for server functions). Replaces the YUI 2 DataTable stack
+ * Loaded by exp::datatable after exp::core (and exp::io for server functions). The admin tables' data table stack
  * (DataTable, Paginator, TextboxCellEditor, DataSource / XHRDataSource, Button, SimpleDialog, Cookie):
  *
  *   $(el).expDataTable({
@@ -62,20 +62,20 @@
         });
     }
 
-    /** YUI's DataTable.validateNumber: the value as a number, or undefined when it is not one. */
+    /** The value as a number, or undefined when it is not one. */
     function validateNumber(value) {
         var n = value * 1;
         return typeof n === 'number' && isFinite(n) ? n : undefined;
     }
 
-    /** YUI Paginator's offset rule: a page boundary, and never past the last page. */
+    /** The offset rule: a page boundary, and never past the last page. */
     function normalizeOffset(offset, total, limit) {
         if (offset <= 0 || total === 0) { return 0; }
         if (total === null || total > offset) { return offset - (offset % limit); }
         return total - (total % limit || limit);
     }
 
-    /** The page numbers shown around the current one (YUI Paginator's PageLinks.calculateRange). */
+    /** The page numbers shown around the current one (the classic paginator's range). */
     function pageRange(current, pages, links) {
         if (!current || links === 0 || pages === 0) { return [0, -1]; }
         links = Math.min(links, pages);
@@ -104,7 +104,7 @@
     // ---- the menu buttons of the toolbar --------------------------------------------------------------------
 
     /**
-     * One button with a menu (or a plain button): YUI Button's markup ids, an ARIA menu, arrow keys, Home, End,
+     * One button with a menu (or a plain button): the admin's button markup ids, an ARIA menu, arrow keys, Home, End,
      * type-ahead, Escape and Tab close it.
      */
     function MenuButton(table, def) {
@@ -474,7 +474,7 @@
         this.$compacts.each(function () {
             $(this).empty().append(btn('exp-dt-prev', L.prev, t('Previous page'), first), btn('exp-dt-next', L.next, t('Next page'), last));
         });
-        // alwaysVisible: false hides the pagers while everything fits on one page, as YUI's Paginator did
+        // alwaysVisible: false hides the pagers while everything fits on one page, as the classic paginator did
         this.$pagers.add(this.$compacts).prop('hidden', !p.alwaysVisible && pages <= 1);
     };
 
@@ -937,7 +937,7 @@
         var self = this, old = row[key];
         var $in = $('<input type="text" class="exp-dt-editor" />').attr('aria-label', c.label || key)
             .val(old === null || old === undefined ? '' : String(old));
-        // over the cell, as YUI's editor was: the value stays in the cell beneath it until it is saved
+        // over the cell, as the classic cell editor was: the value stays in the cell beneath it until it is saved
         $td.addClass('exp-dt-editing').append($in);
         this.editing = { td: td, $in: $in, row: row, key: key, old: old, column: c, type: et };
         $in.on('keydown', function (e) {

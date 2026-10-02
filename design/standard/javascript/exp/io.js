@@ -2,7 +2,7 @@
  * Exponential UI (expui) io — server calls through ezjscore, on jQuery 4.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::io after exp::core. Talks to the same endpoint as YUI 3's io-ez and $.ez() (ezjscore/call/),
+ * Loaded by exp::io after exp::core. Talks to the same endpoint as $.ez() (ezjscore/call/),
  * with the same arguments and form token, so no server function changes:
  *
  *   Exp.io.call('ezjscnode::subtree', [2, 25, 0]).then(content => ...)

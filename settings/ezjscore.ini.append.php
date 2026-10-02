@@ -1,6 +1,6 @@
 <?php /* #?ini charset="utf-8"?
 
-# The exp:: packer keys ({ezscript_require( array( 'exp::core', 'exp::io' ) )}), as ezjsc::yui3 and ezjsc::jquery
+# The exp:: packer keys ({ezscript_require( array( 'exp::core', 'exp::io' ) )}), as ezjsc::jquery
 [ezjscServer_exp]
 Class=expUIServerFunctions
 

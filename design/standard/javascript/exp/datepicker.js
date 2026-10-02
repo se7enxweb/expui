@@ -1,8 +1,8 @@
 /*!
- * Exponential UI (expui) datepicker — a calendar for the date and date/time fields, without YUI.
+ * Exponential UI (expui) datepicker — a calendar for the date and date/time fields.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::datepicker after exp::core. Replaces YUI 2's Calendar and ezdatepicker.js:
+ * Loaded by exp::datepicker after exp::core. The calendar of the date templates:
  *
  *   $(fieldset).expDatePicker({
  *       fields: { year: 'input[name$="_year_7"]', month: …, day: …, hour: …, minute: … },  the existing inputs stay
@@ -17,7 +17,7 @@
  * keep their names, so what the form posts does not change.
  *
  * window.showDatePicker( base, id, datatype ), the function the date templates' calendar icon calls, opens this
- * calendar; the templates load YUI's only when Exponential UI is not there.
+ * calendar.
  *
  * Keyboard: arrows move a day or a week, Page Up / Page Down a month, Home / End the start or end of the week,
  * Enter or Space chooses, Escape closes and gives the focus back. The names of the months and days are the page
@@ -182,7 +182,7 @@
         open = { $el: $el, $container: $container.length ? $container : null, anchor: opts.anchor ? $(opts.anchor)[0] : f.day[0], fields: f };
         draw();
         focusDay();
-        // a click outside closes it, as YUI's close button and losing the calendar did
+        // a click outside closes it
         window.setTimeout(function () {
             $(document).on('mousedown.expdatepicker', function (e) {
                 if (open && !$.contains(open.$el[0], e.target) && e.target !== open.anchor) { close(false); }

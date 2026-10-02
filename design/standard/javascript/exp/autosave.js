@@ -1,8 +1,8 @@
 /*!
- * Exponential UI (expui) autosave — drafts saved while editing, and the draft's preview, without YUI.
+ * Exponential UI (expui) autosave — drafts saved while editing, and the draft's preview.
  * GNU General Public License v2.0 (or any later version). https://github.com/se7enxweb/expui
  *
- * Loaded by exp::autosave after exp::core. Replaces YUI 3's ezautosubmit (Y.eZ.AutoSubmit) and ezcontentpreview
+ * Loaded by exp::autosave after exp::core. The admin's and ezwebin's autosave and the admin preview
  * (Y.eZ.ContentPreview) of the ezautosave extension with the same configuration, events and markup, so its
  * templates move over by changing the constructors:
  *
@@ -121,7 +121,7 @@
             self.state = serializeForm(self.conf.form, self.conf.ignoreClass);
             var $form = $(self.conf.form);
             if (self.conf.trackUserInput) {
-                // YUI's delegated 'blur' (it listened in the capture phase); focusout is the bubbling one
+                // a delegated 'blur' (focusout is the bubbling one)
                 $form.on('focusout.expautosave', 'input, select, textarea, iframe', function (e) {
                     if (!self.conf.ignoreClass || !$(e.target).hasClass(self.conf.ignoreClass)) { self.submit(); }
                 });
@@ -144,13 +144,13 @@
 
     /**
      * Saves the form when it changed since the last save: its fields and files, posted to conf.action. fields: more
-     * data to send, as "name=value&name=value" (it also counts as a change, as with YUI).
+     * data to send, as "name=value&name=value" (it also counts as a change).
      */
     AutoSubmit.prototype.submit = function (fields) {
         var self = this, formState, originalState, $form = $(this.conf.form);
         if (!this.started) { return; }
         // Rich text editors write their content back into the form first, as the form's own submit makes them do
-        // (TinyMCE patches form.submit(), which YUI's upload transport called), so the draft gets what the editor
+        // (TinyMCE patches form.submit()), so the draft gets what the editor
         // shows and the next comparison does not see a change that is only the editor's rewrite
         if (this.conf.beforeSerialize) { this.conf.beforeSerialize.call(this); }
         formState = originalState = serializeForm(this.conf.form, this.conf.ignoreClass);
@@ -190,7 +190,7 @@
         }, function (xhr, textStatus) {
             if (self.request === request) { self.request = false; }
             if (textStatus === 'abort') {
-                // as YUI: an aborted save (stop(), or a newer save replacing it) reports 'abort'
+                // an aborted save (stop(), or a newer save replacing it) reports 'abort'
                 if (!request.expReplaced) { self.fire('abort'); }
                 return;
             }
