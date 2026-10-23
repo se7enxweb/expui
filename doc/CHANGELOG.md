@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Changed
+- The modules are no longer on every admin4 page: `design.ini` has no
+  `BackendJavaScriptList[]` entry of Exponential UI any more. A template that
+  uses a module requests it, with `exp::core::shared` first (and
+  `ezjsc::jquery` in front only where its own code needs jQuery), through
+  `ezscript_require()` outside any cache-block
+  ([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)).
+  The older admin designs (admin, admin3) still load every module on every
+  page, now through `ClassicBackendJavaScriptList[]`. Needs Exponential 6.0.15,
+  whose `design.ini` has that list and whose admin4 templates request their
+  modules.
+
 1.0.0.15 (2026-10-23)
 ---------------------
 

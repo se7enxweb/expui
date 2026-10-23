@@ -9,7 +9,8 @@ In the admin: nothing to do
 ---------------------------
 
 With Exponential UI active, every admin design (admin, admin2, admin3) loads
-`exp::sticky`. It wires the edit forms' toolbar, `#controlbar-top` over
+`exp::sticky`; in admin4 the content and class edit pages request it
+themselves. It wires the edit forms' toolbar, `#controlbar-top` over
 `#editform` or `#ClassEdit`, when the page is ready. `fixed_toolbar.js` stands
 aside when it finds `Exp.sticky`, so there is always exactly one.
 

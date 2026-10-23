@@ -7,8 +7,9 @@ Available since 1.0.0.0. Replaces YUI 3's `ezcollapsiblemenu` (`Y.eZ.Collapsible
 In the admin: nothing to do
 ---------------------------
 
-With Exponential UI active, every admin design loads `exp::collapse`, and the
-admin's collapsible menus run on it:
+With Exponential UI active, the older admin designs (admin, admin2, admin3)
+load `exp::collapse` on every page (admin4 only where a template requests it),
+and the admin's collapsible menus run on it:
 
 - the right menu, in the admin and admin2 designs;
 - the edit page's object information menu, in the admin design. admin3 keeps

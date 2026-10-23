@@ -7,12 +7,14 @@ Sortable, paged tables with row selection, column toggling, inline editing, acti
 Paginator, TextboxCellEditor, DataSource and XHRDataSource, Button (menu buttons), SimpleDialog,
 Cookie and KeyListener.
 
-In the admin: nothing to do
----------------------------
+In the admin
+------------
 
-With Exponential UI active, every admin design (admin, admin2, admin3) loads `exp::datatable`
-and `exp/datatable.css` (`design.ini` `BackendJavaScriptList`, `BackendCSSFileList`), and these
-tables run on it:
+With Exponential UI active, every admin design loads `exp/datatable.css` (`design.ini`
+`BackendCSSFileList`). The script comes with the page that has a table: admin4's templates
+request `exp::core::shared`, `exp::io` and `exp::datatable` with `ezscript_require()`; the older
+admin designs (admin, admin3) load it on every page through `ClassicBackendJavaScriptList`, after
+their jQuery. These tables run on it:
 
 - the sub-items table of the node view (`children.tpl` and `children_detailed.tpl`, with
   `design/admin/javascript/ezajaxsubitems_expdatatable.js`);
@@ -67,7 +69,8 @@ Exp.ready(function ($) {
 </script>
 ```
 
-On admin pages the module and its stylesheet are loaded already: you only write the call.
+On admin pages the stylesheet is loaded already. The script is too in the older admin designs; in admin4
+the template requests `exp::core::shared`, `exp::io` and `exp::datatable` itself (see above).
 
 The table is a real `<table>`: `<thead>` with `<th scope="col">` cells (sortable ones hold a
 `<button>` and say `aria-sort`), a `<tbody>` for the rows and one for the loading, empty and error

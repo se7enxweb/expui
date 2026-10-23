@@ -10,7 +10,8 @@ In the admin: nothing to do
 ---------------------------
 
 With Exponential UI active, every admin design (admin, admin2, admin3) loads
-`exp::upload` and `exp/upload.css`, and these use it:
+`exp::upload` and `exp/upload.css`; admin4 loads the stylesheet, and its
+templates that use the module request it themselves. These use it:
 
 - the "Upload a file" of object relation fields
   (`ezobjectrelation_ajaxuploader.tpl`, `ezobjectrelationlist_ajaxuploader.tpl`,
@@ -33,7 +34,8 @@ otherwise. A few things work better than with YUI; they are listed in
 In your own templates
 ---------------------
 
-On admin pages the module is loaded already. Elsewhere:
+In the older admin designs (admin, admin3) the module is loaded already. In admin4, request it
+with `exp::core::shared` instead of `exp::core` (no jQuery needed); elsewhere:
 
 ```html
 {exp_config()}

@@ -119,13 +119,17 @@ final class ShippedFilesTest extends TestCase
         $this->assertFileExists( $this->path( 'design/standard/stylesheets/exp/core.css' ) );
     }
 
-    public function testTheAdminLoadsEveryModuleAndItsStylesheetsExist()
+    public function testOnlyTheOlderAdminDesignsLoadEveryModuleAndItsStylesheetsExist()
     {
         $ini = (string)file_get_contents( $this->path( 'settings/design.ini.append.php' ) );
-        preg_match_all( '/^BackendJavaScriptList\[\]=(\S+)\s*$/m', $ini, $js );
+        // admin4 loads no module on every page: its templates request the ones they use
+        $this->assertDoesNotMatchRegularExpression( '/^BackendJavaScriptList\[\]=/m', $ini );
+        preg_match_all( '/^ClassicBackendJavaScriptList\[\]=(\S+)\s*$/m', $ini, $js );
+        $this->assertSame( 'exp::core::shared', $js[1][0] ?? null, 'the core comes first' );
+        $this->assertContains( 'exp::io', $js[1] );
         foreach ( expUIServerFunctions::MODULES as $module )
         {
-            $this->assertContains( 'exp::' . $module, $js[1], 'the admin loads exp::' . $module );
+            $this->assertContains( 'exp::' . $module, $js[1], 'the older admin designs load exp::' . $module );
         }
         preg_match_all( '/^BackendCSSFileList\[\]=(\S+)\s*$/m', $ini, $css );
         $this->assertNotEmpty( $css[1] );

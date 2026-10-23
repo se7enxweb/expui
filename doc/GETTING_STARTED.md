@@ -155,7 +155,9 @@ button, Cancel does nothing):
        data-exp-dialog='{"confirm": "Remove the selected items?", "danger": true}' />
 ```
 
-On admin pages every module is loaded already. The others: tables
+In the older admin designs (admin, admin3) every module is loaded already; in
+admin4 a template requests the keys it uses, with `exp::core::shared` first.
+The others: tables
 (`exp::datatable`), uploads (`exp::upload`), a calendar for date fields
 (`exp::datepicker`), autosave (`exp::autosave`), collapsible panels
 (`exp::collapse`) and a sticky toolbar (`exp::sticky`), each with its page in

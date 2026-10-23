@@ -17,9 +17,10 @@ code usually keeps working under Migrate; the console tells you what to change
 ([step 6](CONVERTING_YUI_to_EXPUI.md#step-6--jquery-3-code-on-jquery-4)).
 **After ezjscore**, pages get the jQuery your ezjscore ships: jQuery 4 with a
 quiet Migrate in current Exponential, jQuery 3 in older versions. In every
-order, the admin designs also get the configuration block and the admin's
-collapsible menus and edit toolbar on Exponential UI. They behave as before
-and were tested by use in admin, admin2 and admin3.
+order, the admin designs also get the configuration block. The older admin
+designs (admin, admin2, admin3) load the collapsible menus and edit toolbar on
+every page and behave as before; admin4 and admin4l load jQuery and the modules
+only on the pages that request them.
 
 ### Which YUI features already run on Exponential UI?
 

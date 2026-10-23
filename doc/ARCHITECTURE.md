@@ -118,9 +118,15 @@ kernel mechanisms, without overriding any of their templates:
 - **The script and stylesheet lists.** `design.ini` `[JavaScriptSettings]
   BackendJavaScriptList[]` is the admin's packed script list, and
   `[StylesheetSettings] BackendCSSFileList[]` its packed stylesheet list.
-  `settings/design.ini.append.php` appends `exp::core::shared`, `exp::io` and
-  every module key to the first, behind `ezjsc::jquery`, and `exp/core.css`
-  with the modules' stylesheets to the second
+  `settings/design.ini.append.php` adds no script to the first: admin4 and
+  admin4l load jQuery only on the pages that request it, and a template that
+  uses a module requests `exp::core::shared` and the module key through
+  `ezscript_require()`, outside any cache-block (with `ezjsc::jquery` in front
+  only where its own code needs jQuery). It appends `exp::core::shared`,
+  `exp::io` and every module key to `[JavaScriptSettings]
+  ClassicBackendJavaScriptList[]`, which only the older admin designs (admin,
+  admin3) load on every page, after jQuery, and `exp/core.css` with the
+  modules' stylesheets to `BackendCSSFileList[]`
   ([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)).
 
 The admin templates that use a module test for it first

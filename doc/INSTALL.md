@@ -95,12 +95,15 @@ whatever the order:
   `page_head_exp.tpl` is empty, and Exponential UI's copy writes
   `{exp_config()}`;
 - the admin's script list (`[JavaScriptSettings] BackendJavaScriptList[]` in
-  `design.ini`) gets `exp::core::shared`, `exp::io`, `exp::collapse`,
-  `exp::sticky`, `exp::dialog`, `exp::upload`, `exp::datatable`,
-  `exp::datepicker` and `exp::autosave`, and its stylesheet list
+  `design.ini`) gets nothing: admin4's templates request the modules they use.
+  The older admin designs' list (`ClassicBackendJavaScriptList[]`) gets
+  `exp::core::shared`, `exp::io`, `exp::collapse`, `exp::sticky`,
+  `exp::dialog`, `exp::upload`, `exp::datatable`, `exp::datepicker` and
+  `exp::autosave`, and the stylesheet list
   (`[StylesheetSettings] BackendCSSFileList[]`) the modules' stylesheets with
-  `exp/core.css`:
-  - the core uses the page's jQuery 4 instead of loading a second copy;
+  `exp/core.css`; on the pages that load them:
+  - the core uses the page's jQuery 4 instead of loading a second copy, and
+    runs without jQuery where the page has none;
   - the admin's collapsible menus run on `exp::collapse` instead of YUI's
     `ezcollapsiblemenu`;
   - the edit forms' toolbar runs on `exp::sticky`, and `fixed_toolbar.js`
