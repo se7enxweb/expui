@@ -41,7 +41,7 @@
     </message>
     <message>
         <source>Choose a date</source>
-        <translation>Виберіть дату</translation>
+        <translation>Вибрати дату</translation>
     </message>
     <message>
         <source>No records found.</source>
@@ -137,11 +137,11 @@
     </message>
     <message>
         <source>Select files</source>
-        <translation>Виберіть файли</translation>
+        <translation>Вибрати файли</translation>
     </message>
     <message>
         <source>Select a file</source>
-        <translation>Виберіть файл</translation>
+        <translation>Вибрати файл</translation>
     </message>
     <message>
         <source>or drop them here</source>
