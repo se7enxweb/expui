@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Failed</source>
-        <translation>Echec</translation>
+        <translation>Échec</translation>
     </message>
     <message>
         <source>Canceled</source>
