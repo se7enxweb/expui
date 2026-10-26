@@ -600,9 +600,12 @@
         Object.keys(modules).forEach(function (name) {
             if (only && only.indexOf(name) === -1) { return; }
             var attr = 'data-exp-' + name;
+            // the core on plain JavaScript, and jQuery 4 came later (a template asked for exp::core after
+            // exp::core::shared, and exp::boot set Exp.$): the module gets the element in that jQuery, as its file expects
+            var jq = $ || Exp.$;
             var run = function (el) {
                 try {
-                    modules[name].call(el, $ ? $(el) : el, options(el.getAttribute(attr)));
+                    modules[name].call(el, jq ? jq(el) : el, options(el.getAttribute(attr)));
                 } catch (e) {
                     if (window.console) { window.console.error('Exp: module ' + name + ' failed', e); }
                 }

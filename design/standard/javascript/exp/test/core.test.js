@@ -146,6 +146,13 @@
             X.register('plain', function (el, o) { seen.push(el.id + ':' + (o.label || o.value) + ':' + (this === el)); });
             X.start(box);
             t.deepEqual(seen, ['p1:one:true', 'p2:two:true'], 'modules get the element itself, once');
+            // jQuery 4 loaded after the core (exp::core requested after exp::core::shared): Exp.$ is set, the core stays plain
+            X.$ = Exp.$;
+            box.innerHTML = '<div id="p3" data-exp-late="x"></div>';
+            var late = [];
+            X.register('late', function ($el) { late.push(!!($el && $el.jquery) + ':' + ($el && $el.attr ? $el.attr('id') : '')); });
+            t.deepEqual(late, ['true:p3'], 'a module gets the element in jQuery once Exp.$ is there');
+            delete X.$;
             var calls = 0, id = X.keys.bind('ctrl+k', function () { calls++; return false; });
             var e = new w.KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true });
             w.document.body.dispatchEvent(e);
