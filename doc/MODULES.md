@@ -30,10 +30,12 @@ Every module but `exp::compat` also runs without jQuery (`exp::core::shared` on 
 loads none: [API.md](API.md#without-jquery)); `exp::compat` needs jQuery 4 and says so in the
 console when the page has none.
 
-Every available module but `exp::compat` is loaded on every admin page (admin,
-admin2, admin3) through `design.ini` `BackendJavaScriptList` (the core as
-`exp::core::shared`), with the stylesheets in `BackendCSSFileList` ([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)).
-Elsewhere a template asks for the keys it needs.
+No module is loaded on every admin4 page: a template asks for the keys it needs,
+with `exp::core::shared` in front (and `ezjsc::jquery` before it only where its
+own code needs jQuery). The older admin designs (admin, admin3) still load every
+module but `exp::compat` on every page through `design.ini`
+`ClassicBackendJavaScriptList`. The stylesheets are in `BackendCSSFileList` on
+every admin page ([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)).
 
 Planned
 -------

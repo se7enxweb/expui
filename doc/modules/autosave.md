@@ -10,7 +10,8 @@ With ezautosave: nothing to do
 ------------------------------
 
 With Exponential UI active, ezautosave's templates use it: its admin template
-(admin, admin2, admin3, where every admin design loads `exp::autosave`) and its
+(admin, admin2, admin3, where every admin design loads `exp::autosave`; in
+admin4 the template requests it itself) and its
 ezwebin template on the front end (which loads it itself). In both:
 
 - the draft is saved every `Interval` seconds of `autosave.ini`, and when you

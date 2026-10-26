@@ -61,17 +61,36 @@ off together once your pages show no Migrate warnings.
 design.ini (`settings/design.ini.append.php`)
 ---------------------------------------------
 
-What every admin design (admin, admin2, admin3) loads on every page, after the
-kernel's own lists:
+The stylesheets every admin design loads on every page, after the kernel's own
+lists:
 
 | Setting | Values |
 |---|---|
-| `[JavaScriptSettings] BackendJavaScriptList[]` | `exp::core::shared`, `exp::io`, `exp::collapse`, `exp::sticky`, `exp::dialog`, `exp::upload`, `exp::datatable`, `exp::datepicker`, `exp::autosave` |
 | `[StylesheetSettings] BackendCSSFileList[]` | `exp/core.css`, `exp/dialog.css`, `exp/upload.css`, `exp/datatable.css`, `exp/datepicker.css`, `exp/autosave.css` |
 | `[ExtensionSettings] DesignExtensions[]` | `expui` (its `design/standard` with the scripts, styles, the test page and the `page_head_exp.tpl` hook) |
 
-The scripts come behind `ezjsc::jquery`, so `exp::core::shared` uses the page's
-jQuery 4. After changing these lists, clear the INI, packer and template-block
+No scripts in `[JavaScriptSettings] BackendJavaScriptList[]`: admin4 and
+admin4l load jQuery only on the pages that request it, and the modules only
+where a template requests them, outside any `{cache-block}`:
+
+```
+{ezscript_require( array( 'exp::core::shared', 'exp::io', 'exp::datatable' ) )}
+```
+
+Without `ezjsc::jquery` in the list the page has no jQuery, and the core and
+the modules run on plain JavaScript. A template whose own code needs jQuery (or
+`exp::compat`) puts `ezjsc::jquery` first, so `exp::core::shared` uses the
+page's jQuery 4.
+
+The older admin designs (admin, admin3) still expect every module on every
+page: `[JavaScriptSettings] ClassicBackendJavaScriptList[]` names
+`exp::core::shared`, `exp::io` and every module key, and their
+`page_head_script.tpl` loads that list after jQuery and
+`BackendJavaScriptList[]`. admin4 and admin4l do not read it. The list needs an
+Exponential whose `design.ini` has it (6.0.15 and later); on an older one the
+older admin designs do not load the modules.
+
+After changing these lists, clear the INI, packer and template-block
 caches together (`--clear-tag=ini`, `--clear-id=ezjscore-packer,template-block`).
 
 The packer keys

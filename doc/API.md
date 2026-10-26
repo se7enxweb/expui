@@ -27,7 +27,7 @@ every block in page order: configuration deeply, texts and preferences by
 name.
 
 **The core runs once per page.** Asking for `exp::core` on a page that has it
-already (every admin page does) costs one extra request at most and changes
+already (a page that requested a module does) costs one extra request at most and changes
 nothing: the running core, its events and its modules stay.
 
 | Key | Loads |
@@ -43,8 +43,10 @@ nothing: the running core, its events and its modules stay.
 
 Their stylesheets: `exp/dialog.css`, `exp/upload.css`, `exp/datatable.css`,
 `exp/datepicker.css` (and `exp/autosave.css`, empty for now), each on top of
-`exp/core.css`. The admin designs load every key above but `exp::compat`, and
-every stylesheet, on every page.
+`exp/core.css`. The admin designs load every stylesheet on every page. admin4
+and admin4l load a module's script only on a page that requests it; the older
+admin designs (admin, admin3) load every key above but `exp::compat` on every
+page.
 
 ### Without jQuery
 

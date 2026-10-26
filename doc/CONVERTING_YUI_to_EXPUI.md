@@ -88,6 +88,13 @@ BackendJavaScriptList[]=exp::core
 BackendJavaScriptList[]=exp::io
 ```
 
+admin4 and admin4l load jQuery only on the pages that request it;
+`exp::core` in `BackendJavaScriptList[]` would bring jQuery 4 to every page. For
+admin4, request the keys in the template that uses them instead, with
+`exp::core::shared` first, outside any `{cache-block}`
+([CONFIGURATION.md](CONFIGURATION.md#designini-settingsdesigniniappendphp)); the
+older admin designs (admin, admin3) read `ClassicBackendJavaScriptList[]`.
+
 Then clear the caches:
 
 ```sh

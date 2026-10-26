@@ -3,22 +3,23 @@
 [ExtensionSettings]
 DesignExtensions[]=expui
 
-# The admin designs (admin, admin2, admin3) load these after the kernel's own list, behind ezjsc::jquery:
-# exp::core::shared uses the page's jQuery 4 instead of loading a second copy; exp::io makes the server calls;
-# exp::collapse collapses the admin menus; exp::sticky keeps the edit toolbar in view (which
-# stands aside when it runs); exp::dialog, exp::upload, exp::datatable, exp::datepicker and exp::autosave are the
-# modules the admin's tables, uploads, date fields and autosave run on.
-# The page configuration they read comes from page_head_exp.tpl ({exp_config()}).
+# No scripts on every admin4 page: admin4 and admin4l load jQuery only on the pages that request it, and the modules
+# only where a template requests them, outside any cache-block, for example
+#   {ezscript_require( array( 'exp::core::shared', 'exp::io', 'exp::datatable' ) )}
+# The modules run without jQuery; only exp::compat needs it ('ezjsc::jquery' in front). (doc/CONFIGURATION.md)
+# The older admin designs (admin, admin3) still load every module on every page: their page_head_script.tpl reads
+# ClassicBackendJavaScriptList[] after jQuery and BackendJavaScriptList[]; admin4 and admin4l do not read it.
+# The page configuration the modules read comes from page_head_exp.tpl ({exp_config()}).
 [JavaScriptSettings]
-BackendJavaScriptList[]=exp::core::shared
-BackendJavaScriptList[]=exp::io
-BackendJavaScriptList[]=exp::collapse
-BackendJavaScriptList[]=exp::sticky
-BackendJavaScriptList[]=exp::dialog
-BackendJavaScriptList[]=exp::upload
-BackendJavaScriptList[]=exp::datatable
-BackendJavaScriptList[]=exp::datepicker
-BackendJavaScriptList[]=exp::autosave
+ClassicBackendJavaScriptList[]=exp::core::shared
+ClassicBackendJavaScriptList[]=exp::io
+ClassicBackendJavaScriptList[]=exp::collapse
+ClassicBackendJavaScriptList[]=exp::sticky
+ClassicBackendJavaScriptList[]=exp::dialog
+ClassicBackendJavaScriptList[]=exp::upload
+ClassicBackendJavaScriptList[]=exp::datatable
+ClassicBackendJavaScriptList[]=exp::datepicker
+ClassicBackendJavaScriptList[]=exp::autosave
 
 # The design tokens and the modules' styles, packed with the admin's own stylesheets.
 [StylesheetSettings]

@@ -285,10 +285,12 @@ page's `<head>`. `ezscript` writes them right where it stands. Both work.
 > too: they are read when the page is ready.
 
 > [!NOTE]
-> **On admin pages the core is already there.** Every admin design loads
-> the core, `exp::io` and every module (chapters 31 to 37), with their
-> stylesheets, by itself. Asking for `exp::core` again does no harm: the core
-> runs once per page.
+> **On the older admin pages the core is already there.** The older admin
+> designs (admin, admin3) load the core, `exp::io` and every module
+> (chapters 31 to 37) on every page by themselves. admin4 and admin4l load the
+> stylesheets only: a template there asks for the keys it uses, with
+> `exp::core::shared` first. Asking for the core again does no harm: it runs
+> once per page.
 
 5. `Exp.$`: your jQuery
 ----------------------
@@ -304,7 +306,7 @@ Exp.$.fn.jquery;      // "4.0.0"
 Exp.jQueryShared;     // true when Exp.$ is also the page's window.jQuery
 ```
 
-Whenever the page has jQuery 4 (every admin page does), it is **one** jQuery 4:
+Whenever the page has jQuery 4 (an admin page that requested `ezjsc::jquery` does), it is **one** jQuery 4:
 `Exp.$`, `window.jQuery` and `$` are the same, and plugins loaded with
 `ezjsc::jquery` work with your code. Only on an older Exponential, whose
 ezjscore ships jQuery 3, with Exponential UI listed after it, does the page keep
@@ -1797,7 +1799,7 @@ SERVER
   Exp.io.url(path)         a site address
   error.kind               signedout refused server network timeout invalid
 
-MODULES (exp::<name>, loaded on every admin page)
+MODULES (exp::<name>, requested by the page with ezscript_require; on every page in admin and admin3)
   Exp.collapse({link, collapsed, elements, pref})          $(el).expCollapse()
   $(toolbar).expSticky({form, start, className, toTop})    Exp.sticky.start()
   Exp.dialog.open({title, content|url|template, buttons}) → Promise(value|null)
