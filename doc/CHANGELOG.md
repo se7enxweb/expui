@@ -1,8 +1,24 @@
 Changelog
 =========
 
-Unreleased
-----------
+1.0.0.17 (2026-10-26)
+---------------------
+
+Added
+- Swahili (Kenya) translation, from ekked's pull request #8.
+- Translations into eighteen more administration languages: Hindi, Korean,
+  Bosnian, Lower Sorbian, Estonian, Irish, Icelandic, Greenlandic, Latvian,
+  Hungarian, Maltese, Romanian, Albanian, Slovak, Slovenian, Japanese, Greek
+  and Finnish, from ekked's pull request #11.
+- Russian, Catalan, Serbian (Cyrillic and Latin), Bulgarian, Lithuanian,
+  Portuguese (Portugal) and Afrikaans translations, from ekked's pull
+  request #12.
+- Translations into seventeen languages from South Asia and Africa: Bengali,
+  Urdu, Marathi, Telugu, Tamil, Gujarati, Kannada, Malayalam, Punjabi, Odia,
+  Hausa, Amharic, Yoruba, Igbo, isiZulu, Somali and isiXhosa, from ekked's
+  pull request #13.
+- Chinese translations in Simplified (chi-CN) and Traditional (chi-TW)
+  script; chi-HK falls back to chi-TW, from ekked's pull request #14.
 
 Changed
 - The modules are no longer on every admin4 page: `design.ini` has no
@@ -14,7 +30,20 @@ Changed
   The older admin designs (admin, admin3) still load every module on every
   page, now through `ClassicBackendJavaScriptList[]`. Needs Exponential 6.0.15,
   whose `design.ini` has that list and whose admin4 templates request their
-  modules.
+  modules. From ekked's pull request #10.
+
+Fixed
+- A module started by a plain core gets its element in jQuery once a later
+  `exp::core` brought jQuery 4: `Exp.start()` wraps the element in `Exp.$`
+  when it is there. The edit form of a class with a map location failed with
+  "$el.attr is not a function".
+- `expUIServerFunctions::VERSION` and `Exp.version` state the release version,
+  as `ezinfo.php` and `extension.xml` do (1.0.0.16 had left them at 1.0.0.15).
+- `ezinfo.php` names the bundled jQuery as 4.0.0 again; the version commit of
+  1.0.0.16 had replaced it with the extension's version.
+- Translations that contradicted their language guide: wrong meanings,
+  glossary breaches, forms of address, typos and English left in the text
+  (fre-FR, ukr-UA), from ekked's pull request #9.
 
 1.0.0.15 (2026-10-23)
 ---------------------
