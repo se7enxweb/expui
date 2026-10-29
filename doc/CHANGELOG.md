@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.0.19 (2026-10-29)
+---------------------
+
+Updated
+- One copyright notice, Exponential Foundation and 7x.
+
 1.0.0.18 (2026-10-28)
 ---------------------
 
