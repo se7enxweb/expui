@@ -1,6 +1,18 @@
 Changelog
 =========
 
+1.0.0.18 (2026-10-28)
+---------------------
+
+Added
+- Translations into 59 more languages: aka-GH, arc-IQ, asm-IN, aze-AZ, bel-BY,
+  bho-IN, bod-CN, ceb-PH, che-RU, ckb-IQ, cym-GB, eng-AU, eus-ES, fil-PH,
+  ful-SN, gla-GB, glg-ES, haw-US, huy-IL, hye-AM, ind-ID, jav-ID, kat-GE,
+  kaz-KZ, khm-KH, kik-KE, kin-RW, kir-KG, lao-LA, lin-CD, ltz-LU, lug-UG,
+  mai-IN, mkd-MK, mlg-MG, mon-MN, mri-NZ, msa-MY, mya-MM, nep-NP, orm-ET,
+  pcm-NG, pnb-PK, run-BI, sin-LK, sna-ZW, snd-PK, sun-ID, syr-IQ, tat-RU,
+  tgk-TJ, tha-TH, tir-ET, tuk-TM, uig-CN, uzb-UZ, vie-VN, wol-SN and yid-US.
+
 1.0.0.17 (2026-10-26)
 ---------------------
 
