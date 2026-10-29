@@ -12,7 +12,7 @@ class expuiInfo
             'Name'      => '<a href="https://github.com/se7enxweb/expui">Exponential UI : jQuery 4 API for the admin and the site designs</a>',
             'Version'   => '1.0.0.18',
             'Author'    => '7x',
-            'Copyright' => 'Copyright &copy; 2026 - ' . date( 'Y' ) . ' <a href="https://se7enx.com" target="blank">7x</a>',
+            'Copyright' => 'Copyright (C) 1998 - 2026 Exponential Foundation and 7x. All rights reserved.',
             'License'   => "GNU General Public License v2.0 (or any later version)",
             'Info_url'  => 'https://github.com/se7enxweb/expui',
             'Includes the following third-party software' => array(
