@@ -40,7 +40,7 @@ wins; Exponential UI sets ezjscore's `LocalScripts` and `ExternalScripts` for
 
 | Your ezjscore | expui **before** ezjscore (recommended) | expui **after** ezjscore |
 |---|---|---|
-| ships jQuery 4 (current Exponential) | jQuery 4.0.0 with the **reporting** Migrate 4 (names every old call in the console), jQuery UI 1.14.2 | jQuery 4.0.0 with ezjscore's **quiet** Migrate 4, jQuery UI 1.14.2 |
+| ships jQuery 4 (current Exponential) | jQuery 4.0.0 alone (Migrate 4 is switched off; an override that names `/lib/jquery/jquery-migrate-4.0.2.js` in `LocalScripts[jqueryMigrate]` brings back the **reporting** build, which names every old call in the console), jQuery UI 1.14.2 | jQuery 4.0.0 alone (ezjscore 6.0.15 switches its quiet Migrate 4 off too), jQuery UI 1.14.2 |
 | ships jQuery 3 (older Exponential) | jQuery 4.0.0 **without** Migrate: an ezjscore this old does not load it, so old calls fail instead of warning. Not recommended | ezjscore's jQuery 3; the API brings its own jQuery 4 next to it (`Exp.$`). **Use this order with an older ezjscore** |
 
 The API and the page share one jQuery 4 whenever the page has one. With the

@@ -46,6 +46,9 @@ final class ShippedFilesTest extends TestCase
         );
         foreach ( $local as $name => $file )
         {
+            // jqueryMigrate empty: Migrate is switched off
+            if ( $file === '' && $name === 'jqueryMigrate' )
+                continue;
             $path = $this->path( 'design/standard' . $file );
             $this->assertFileExists( $path, $name );
             $this->assertMatchesRegularExpression( $heads[$name], (string)file_get_contents( $path, false, null, 0, 400 ), $name );
@@ -53,7 +56,11 @@ final class ShippedFilesTest extends TestCase
         // the same files as expui.ini's, so exp::core and ezjsc::jquery load one copy
         $expui = eZINI::instance( 'expui.ini' )->variable( 'ExpUI', 'LocalScripts' );
         $this->assertSame( $expui['jquery'], $local['jquery'] );
-        $this->assertSame( $expui['migrate'], $local['jqueryMigrate'] );
+        $this->assertTrue( in_array( $local['jqueryMigrate'], array( '', $expui['migrate'] ), true ), 'jqueryMigrate is empty or exp::core\'s Migrate' );
+        $this->assertFileExists( $this->path( 'design/standard' . $expui['migrate'] ) );
+        // switched off in both places, so neither exp::core nor ezjsc::jquery loads it
+        $this->assertSame( 'disabled', eZINI::instance( 'expui.ini' )->variable( 'ExpUI', 'Migrate' ) );
+        $this->assertSame( '', $local['jqueryMigrate'] );
     }
 
     public function testTheLocalJqueryUiMatchesTheCdnHash()

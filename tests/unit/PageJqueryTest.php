@@ -25,24 +25,32 @@ final class PageJqueryTest extends TestCase
         return $out;
     }
 
-    public function testExpuiPointsEzjscJqueryAtJquery4AndMigrate4()
+    /** jQuery 4 alone: Migrate is switched off, and the comment that tells how to switch it on names files that exist */
+    public function testExpuiPointsEzjscJqueryAtJquery4WithMigrateSwitchedOff()
     {
         $s = $this->settings();
         $this->assertSame( '/lib/jquery/jquery-4.0.0.min.js', $s['LocalScripts']['jquery'] );
-        $this->assertSame( '/lib/jquery/jquery-migrate-4.0.2.js', $s['LocalScripts']['jqueryMigrate'] );
+        $this->assertSame( '', $s['LocalScripts']['jqueryMigrate'] );
         $this->assertSame( 'https://code.jquery.com/jquery-4.0.0.min.js', $s['ExternalScripts']['jquery'] );
-        $this->assertSame( 'https://code.jquery.com/jquery-migrate-4.0.2.min.js', $s['ExternalScripts']['jqueryMigrate'] );
-        foreach ( $s['LocalScripts'] as $file )
+        $this->assertSame( '', $s['ExternalScripts']['jqueryMigrate'] );
+        foreach ( array_filter( $s['LocalScripts'] ) as $file )
         {
             $this->assertFileExists( EXPUI_TEST_CHECKOUT . '/design/standard' . $file );
         }
+        $text = (string)file_get_contents( EXPUI_TEST_CHECKOUT . '/settings/ezjscore.ini.append.php' );
+        $this->assertStringContainsString( '#   LocalScripts[jqueryMigrate]=' . self::MIGRATE, $text );
+        $this->assertStringContainsString( '#   ExternalScripts[jqueryMigrate]=https://code.jquery.com/jquery-migrate-4.0.2.min.js', $text );
+        $this->assertFileExists( EXPUI_TEST_CHECKOUT . '/design/standard' . self::MIGRATE );
     }
+
+    /** The reporting build of Migrate an override names to switch it back on */
+    const MIGRATE = '/lib/jquery/jquery-migrate-4.0.2.js';
 
     public function testKernelJqueryAddsMigrateAfterJquery()
     {
         $ini = eZINI::instance( 'ezjscore.ini' );
         $ini->setVariable( 'eZJSCore', 'LoadFromCDN', 'disabled' );
-        $ini->setVariable( 'eZJSCore', 'LocalScripts', $this->settings()['LocalScripts'] );
+        $ini->setVariable( 'eZJSCore', 'LocalScripts', array( 'jqueryMigrate' => self::MIGRATE ) + $this->settings()['LocalScripts'] );
         $pack = array( 'mine.js' );
         ezjscServerFunctionsJs::jquery( array(), $pack );
         $this->assertSame( array( '/lib/jquery/jquery-4.0.0.min.js', '/lib/jquery/jquery-migrate-4.0.2.js', 'mine.js' ), $pack );
@@ -53,6 +61,10 @@ final class PageJqueryTest extends TestCase
         $ini = eZINI::instance( 'ezjscore.ini' );
         $ini->setVariable( 'eZJSCore', 'LoadFromCDN', 'enabled' );
         $ini->setVariable( 'eZJSCore', 'ExternalScripts', $this->settings()['ExternalScripts'] );
+        $pack = array();
+        ezjscServerFunctionsJs::jquery( array(), $pack );
+        $this->assertSame( array( 'https://code.jquery.com/jquery-4.0.0.min.js' ), $pack, 'Migrate is switched off' );
+        $ini->setVariable( 'eZJSCore', 'ExternalScripts', array( 'jqueryMigrate' => 'https://code.jquery.com/jquery-migrate-4.0.2.min.js' ) + $this->settings()['ExternalScripts'] );
         $pack = array();
         ezjscServerFunctionsJs::jquery( array(), $pack );
         $this->assertSame( array( 'https://code.jquery.com/jquery-4.0.0.min.js', 'https://code.jquery.com/jquery-migrate-4.0.2.min.js' ), $pack );
@@ -83,10 +95,14 @@ final class PageJqueryTest extends TestCase
         }
         $dir = $root . '/extension/ezjscore/design/standard/javascript/';
         $this->assertFileExists( $dir . trim( $m[1] ) );
-        $this->assertMatchesRegularExpression( '/^LocalScripts\[jqueryMigrate\]=jquery-migrate-4\./m', $text );
+        // Migrate: switched off (empty) since 6.0.15, or a Migrate 4 file that exists
+        $this->assertMatchesRegularExpression( '/^LocalScripts\[jqueryMigrate\]=(jquery-migrate-4\.|\s*$)/m', $text );
         $this->assertMatchesRegularExpression( '/^LocalScripts\[jqueryUI\]=jquery-ui-1\.14\./m', $text );
         preg_match( '/^LocalScripts\[jqueryMigrate\]=(.*)$/m', $text, $mm );
-        $this->assertFileExists( $dir . trim( $mm[1] ) );
+        if ( trim( $mm[1] ) !== '' )
+        {
+            $this->assertFileExists( $dir . trim( $mm[1] ) );
+        }
         preg_match( '/^LocalScripts\[jqueryUI\]=(.*)$/m', $text, $mu );
         $this->assertFileExists( $dir . trim( $mu[1] ) );
         // the same release as expui's copy, byte for byte

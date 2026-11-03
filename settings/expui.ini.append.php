@@ -17,9 +17,11 @@ ExternalIntegrity[jquery]=sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaq
 ExternalIntegrity[migrate]=sha384-j1JGhEtpRFQa6jnqPcEWt92tLBipLPhYYJxOL/bmH3VrUmV++ZHPOXLcrjVMkuo6
 ExternalIntegrity[jqueryUI]=sha384-tBcEcHGtNy7/Mx08+YxuvQ6v6s0N2jgehtFiT+bLtGwTj/txXtB/L5GqXfggm5sS
 
-# jQuery Migrate 4 on top of jQuery 4: enabled while jQuery 3 code is ported (it restores some
-# removed APIs and warns in the browser console about each use), disabled when the port is done.
-Migrate=enabled
+# jQuery Migrate 4 on top of jQuery 4 (exp::core): it restores some removed APIs and warns in the browser console
+# about each use. Disabled: the admin designs and the extensions they load no longer call any of those APIs.
+# Set Migrate=enabled in an override while a site's own jQuery 3 code is ported (and name the file in
+# ezjscore.ini [eZJSCore] LocalScripts[jqueryMigrate], see settings/ezjscore.ini.append.php).
+Migrate=disabled
 
 # While another jQuery (the admin's jQuery 3 from ezjsc::jquery) is on the page, jQuery 4 is kept as Exp.$ and
 # the page's jQuery and $ are given back to it (jQuery.noConflict(true)), so existing code keeps its jQuery.

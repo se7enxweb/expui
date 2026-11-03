@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Updated
+- jQuery Migrate 4 is switched off: `[ExpUI] Migrate=disabled`, and
+  `LocalScripts[jqueryMigrate]` and `ExternalScripts[jqueryMigrate]` of ezjscore.ini
+  are empty, so neither `exp::core` nor `ezjsc::jquery` loads it. The admin
+  designs and the extensions they load no longer call an API jQuery 4 removed.
+  The comments in both settings files say how to switch it back on.
+
 1.0.0.19 (2026-10-29)
 ---------------------
 
