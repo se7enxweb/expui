@@ -166,7 +166,7 @@ The others: tables
 Next
 ----
 
-- **[Using Exponential UI](USEING_EXPUI.md)**, the book: every feature with
+- **[Using Exponential UI](USING_EXPUI.md)**, the book: every feature with
   examples, writing your own server functions, styling, testing and recipes.
 - The full [API reference](API.md).
 - [Modules](MODULES.md): the modules available now, and the ones still to come.

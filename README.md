@@ -108,7 +108,7 @@ Documentation
 
 | Guide | For |
 |---|---|
-| **[Using Exponential UI](doc/USEING_EXPUI.md)** | **The book**: everything, from your first page to your own modules, server functions, styles and tests, with recipes and Notes. Start here. |
+| **[Using Exponential UI](doc/USING_EXPUI.md)** | **The book**: everything, from your first page to your own modules, server functions, styles and tests, with recipes and Notes. Start here. |
 | [Getting started](doc/GETTING_STARTED.md) | Your first page with the API, step by step. |
 | [Installation](doc/INSTALL.md) | Requirements, installing, activating, checking, upgrading, removing. |
 | [API reference](doc/API.md) | Every function of `Exp`, `Exp.io`, `Exp.prefs`, `Exp.keys`, the compat layer and the modules, with examples. |

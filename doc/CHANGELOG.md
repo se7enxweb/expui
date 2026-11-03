@@ -11,6 +11,10 @@ Updated
   designs and the extensions they load no longer call an API jQuery 4 removed.
   The comments in both settings files say how to switch it back on.
 
+Renamed
+- The book `doc/USEING_EXPUI.md` is `doc/USING_EXPUI.md`; the README and
+  GETTING_STARTED.md link to the new name.
+
 1.0.0.19 (2026-10-29)
 ---------------------
 
