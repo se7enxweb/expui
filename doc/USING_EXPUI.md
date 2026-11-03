@@ -1,5 +1,4 @@
-Using Exponential UI
-====================
+# Using Exponential UI
 
 *The friendly book about building interactive pages in Exponential with
 jQuery 4 and the `Exp` API — from your first line of code to your own
@@ -10,8 +9,7 @@ Version 1.0.0.1 · GNU General Public License v2.0 (or any later version) ·
 
 ---
 
-Welcome
--------
+## Welcome
 
 You want a button that saves without reloading the page. A list that loads
 more items when asked. A panel that remembers whether it was open. A field
@@ -100,11 +98,9 @@ a chapter take you further when you want to.
 
 ---
 
-Part 1 — First steps
-====================
+# Part 1 — First steps
 
-1. What Exponential UI is
--------------------------
+## 1. What Exponential UI is
 
 Exponential UI (`expui`) is an extension. It brings three things:
 
@@ -126,8 +122,7 @@ one did.
 > maintained. The `Exp` API adds the Exponential parts and stays out of your
 > way.
 
-2. Installing it in two minutes
--------------------------------
+## 2. Installing it in two minutes
 
 ```sh
 composer require se7enxweb/expui
@@ -166,8 +161,7 @@ page and should end with **118 passed, 0 failed**.
 > it after installing, so its workers load the new classes:
 > `php bin/php/velocity.php restart`.
 
-3. Your first page
-------------------
+## 3. Your first page
 
 Let us make a page that asks the server for the time when you click a button.
 Put this in any template you can open in the browser — a node view, a module
@@ -223,11 +217,9 @@ That is the whole pattern. Everything else in this book is more of the same.
 
 ---
 
-Part 2 — The core
-=================
+# Part 2 — The core
 
-4. Loading the API on a page
-----------------------------
+## 4. Loading the API on a page
 
 Two lines, in this order:
 
@@ -292,8 +284,7 @@ page's `<head>`. `ezscript` writes them right where it stands. Both work.
 > `exp::core::shared` first. Asking for the core again does no harm: it runs
 > once per page.
 
-5. `Exp.$`: your jQuery
-----------------------
+## 5. `Exp.$`: your jQuery
 
 `Exp.$` is jQuery 4. Use it, or the `$` that `Exp.ready()` hands you:
 
@@ -320,8 +311,7 @@ your code works either way.
 > [`.on()`](https://api.jquery.com/on/) and
 > [`.trigger()`](https://api.jquery.com/trigger/).
 
-6. Running code when the page is ready
---------------------------------------
+## 6. Running code when the page is ready
 
 ```js
 Exp.ready(function ($) {
@@ -337,8 +327,7 @@ in order. Called after the page is ready, the function runs at once.
 > moment, but it guarantees the jQuery you get is jQuery 4, and that the
 > page's `data-exp-*` modules (next chapter) have been started.
 
-7. Modules: behaviour from HTML attributes
-------------------------------------------
+## 7. Modules: behaviour from HTML attributes
 
 This is the part that makes templates pleasant. You write the behaviour once,
 in JavaScript, and switch it on in HTML with an attribute:
@@ -406,8 +395,7 @@ Exp.start('#results', ['copy']);  // only these modules
 > [`data-*` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*)
 > in detail.
 
-8. Configuration: what the page knows
--------------------------------------
+## 8. Configuration: what the page knows
 
 `{exp_config()}` puts this into `Exp.config`:
 
@@ -434,8 +422,7 @@ siteaccess.
 > server can cache it. What differs per page lives in the small JSON block that
 > `{exp_config()}` writes.
 
-9. Translations
----------------
+## 9. Translations
 
 Texts your script shows should be in the visitor's language. Ask for them in
 the template:
@@ -478,8 +465,7 @@ Texts every page should have go into `[ExpUI] Strings[]` in your extension's
 > The API's own texts — "Close", "Cancel", "Loading...", the error messages —
 > are already there in English and German.
 
-10. Page-wide events
---------------------
+## 10. Page-wide events
 
 Parts of a page that do not know each other can still talk:
 
@@ -504,8 +490,7 @@ The API sends two events itself:
 > **Name your events** `<area>:<what happened>`, like `cart:changed` or
 > `upload:done`. Names starting with `exp:` belong to the API.
 
-11. Remembering things: user preferences
-----------------------------------------
+## 11. Remembering things: user preferences
 
 Exponential keeps per-user preferences on the server: the same ones the
 `ezpreference()` template operator reads. That makes them perfect for "keep
@@ -544,8 +529,7 @@ Exp.ready(function ($) {
 > **Prefix your names** with your extension (`myext_…`), so they never meet
 > another extension's preferences.
 
-12. Keyboard shortcuts
-----------------------
+## 12. Keyboard shortcuts
 
 ```js
 var id = Exp.keys.bind('/', function () {
@@ -572,8 +556,7 @@ Exp.keys.unbind(id);
 > already use (`ctrl+f`, `ctrl+l`, `alt+` letters); a single character on its
 > own, like `/` for search, is the friendliest.
 
-13. Motion, focus and everyone
-------------------------------
+## 13. Motion, focus and everyone
 
 Some people get dizzy from animation and tell their system so. Respect it:
 
@@ -603,11 +586,9 @@ Other things the API does for you:
 
 ---
 
-Part 3 — Talking to the server
-==============================
+# Part 3 — Talking to the server
 
-14. Your first server call
---------------------------
+## 14. Your first server call
 
 You met it in chapter 3. A server call asks a PHP function on the server and
 gets its answer back as data:
@@ -638,8 +619,7 @@ an object: `list` (the nodes), `count`, `total_count`, `limit`, `offset`.
 > [guide to using promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)
 > is the best twenty minutes you can spend.
 
-15. Calls in detail
--------------------
+## 15. Calls in detail
 
 ```js
 Exp.io.call(fn, args, options)   // → a Promise
@@ -675,8 +655,7 @@ script makes.
 > (chapter 28), and many server functions change things. Use `GET` only for
 > reading, when you want the browser to be allowed to cache the answer.
 
-16. Writing your own server function
-------------------------------------
+## 16. Writing your own server function
 
 Here is a complete server function, from nothing to answering the browser.
 Your extension is called `myext`.
@@ -757,8 +736,7 @@ see `Functions[]` and `PermissionPrFunction` in `ezjscore.ini`.
 > what will be put into the page as HTML, leave alone what will be put in as
 > text.
 
-17. Rendering a template from JavaScript
-----------------------------------------
+## 17. Rendering a template from JavaScript
 
 Sometimes you want the server to make the HTML: the same template the page
 uses, now for one more item. ezjscore can call a template as if it were a
@@ -790,8 +768,7 @@ arguments are in `$arguments`. ezjscore ships a working example: the
 > **One template for both.** Use the same `.tpl` file in the page (with
 > `{include}`) and from JavaScript, and the markup can never drift apart.
 
-18. Sending forms
------------------
+## 18. Sending forms
 
 ```js
 $('#comment-form').on('submit', function (e) {
@@ -814,8 +791,7 @@ when it is JSON).
 > `action` and a real submit button. Then the script makes it nicer, and the
 > page still works when a script fails.
 
-19. Waiting for the server: polling
------------------------------------
+## 19. Waiting for the server: polling
 
 Some work takes a while on the server: publishing in the background, an
 import, a long export. `Exp.io.poll()` asks again until the answer says it is
@@ -852,8 +828,7 @@ Exp.io.poll('ezpublishingqueue::status', [objectId, version], {
 > so they call again with `setTimeout()` rather than `Exp.io.poll()`: a fine
 > example of when the building block suits better than the shortcut.
 
-20. Timeouts and cancelling
----------------------------
+## 20. Timeouts and cancelling
 
 **A timeout** gives up after a time:
 
@@ -882,8 +857,7 @@ $('#search').on('input', function () {
 > [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
 > is the browser's standard way to cancel things, the same one `fetch()` uses.
 
-21. When things go wrong
-------------------------
+## 21. When things go wrong
 
 Every failure rejects with an `Exp.io.Error`:
 
@@ -921,11 +895,9 @@ Exp.io.call('myext::save', [id]).then(done, explain);
 
 ---
 
-Part 4 — Looks
-==============
+# Part 4 — Looks
 
-22. Design tokens
------------------
+## 22. Design tokens
 
 `exp/core.css` defines the look as CSS custom properties, all named
 `--exp-*`:
@@ -966,8 +938,7 @@ Part 4 — Looks
 > [custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)
 > from the start.
 
-23. Utilities
--------------
+## 23. Utilities
 
 | Class | Does |
 |---|---|
@@ -984,11 +955,9 @@ Part 4 — Looks
 
 ---
 
-Part 5 — Moving older code
-==========================
+# Part 5 — Moving older code
 
-24. `$.ez()` keeps working
---------------------------
+## 24. `$.ez()` keeps working
 
 Code written for ezjscore's `$.ez()` works on top of the new server calls when
 you add `exp::compat`:
@@ -1007,8 +976,7 @@ Same arguments, same jqXHR back (`.done()`, `.fail()`, `.then()`), same
 `$.ez.url` and `$.ez.setPreference()`. Move to `Exp.io.call()` when you next
 touch the code: it gives you the content directly and clear errors.
 
-25. From YUI
-------------
+## 25. From YUI
 
 The short version:
 
@@ -1036,8 +1004,7 @@ what needs changing and before/after examples for each YUI feature, is
 > not use YUI, the admin's move is invisible to you. Step 1 of the converting
 > guide is one command that tells you.
 
-26. From jQuery 3
------------------
+## 26. From jQuery 3
 
 jQuery 4 removed a few old functions. jQuery Migrate 4 is switched on while
 sites move over: it puts most of them back and writes a warning in the
@@ -1076,11 +1043,9 @@ and the traps to watch for.
 
 ---
 
-Part 6 — Quality
-================
+# Part 6 — Quality
 
-27. Testing your code
----------------------
+## 27. Testing your code
 
 **In the browser.** The test runner of `/expui/test` is yours to use. A test
 file:
@@ -1136,8 +1101,7 @@ without a database.
 feature, and look for red errors and `JQMIGRATE:` lines. [TESTING.md](TESTING.md)
 has the checklist.
 
-28. Security
-------------
+## 28. Security
 
 What the API does for you:
 
@@ -1171,8 +1135,7 @@ What is your job:
 
 [SECURITY.md](SECURITY.md) has the full picture and how to report a problem.
 
-29. Speed and deployment
-------------------------
+## 29. Speed and deployment
 
 - **One request.** Everything in one `ezscript_require()` becomes one packed
   file.
@@ -1199,11 +1162,9 @@ When you deploy a change:
 
 ---
 
-Part 7 — The cookbook
-=====================
+# Part 7 — The cookbook
 
-30. Recipes
------------
+## 30. Recipes
 
 Short, complete, ready to adapt. Each assumes `exp::core` and `exp::io` are
 loaded.
@@ -1313,15 +1274,13 @@ Exp.ready(function ($) {
 
 ---
 
-Part 8 — Ready-made modules
-===========================
+# Part 8 — Ready-made modules
 
 Modules are features you switch on rather than write: a packer key, a few
 options, and they do the work. Each has its own page with every option; these
 chapters get you going.
 
-31. Panels that collapse: `exp::collapse`
------------------------------------------
+## 31. Panels that collapse: `exp::collapse`
 
 A filter panel, a side menu, a "more details" box: anything that opens and
 closes, and should stay the way the user left it.
@@ -1366,8 +1325,7 @@ Exp.ready(function () {
 > menu were moved exactly like this. Every option, the instance's methods and
 > the before/after: [modules/collapse.md](modules/collapse.md).
 
-32. A toolbar that stays in view: `exp::sticky`
------------------------------------------------
+## 32. A toolbar that stays in view: `exp::sticky`
 
 In the admin it works by itself: the edit forms' toolbar stays at the top while
 you scroll, and "go to the top" appears, in every admin design. For a toolbar of
@@ -1393,8 +1351,7 @@ looks like.
 > other code reads it: ezautosave's preview moves itself when the admin's
 > toolbar is fixed. All options are in [modules/sticky.md](modules/sticky.md).
 
-33. Asking and telling: `exp::dialog`
--------------------------------------
+## 33. Asking and telling: `exp::dialog`
 
 "Remove these three items?" deserves a real question, not the browser's grey
 `confirm()` box. `exp::dialog` asks it in a dialog that looks like your site,
@@ -1490,8 +1447,7 @@ questions and messages are
 out as soon as they open. Every option, the dialog's own methods and the move
 from YUI: [modules/dialog.md](modules/dialog.md).
 
-34. Uploading files: `exp::upload`
-----------------------------------
+## 34. Uploading files: `exp::upload`
 
 Choosing five pictures and watching them go up one by one, each with its own
 bar and its own Cancel, is how uploading should feel. One element is enough:
@@ -1552,8 +1508,7 @@ inside a label, and the drop zone uses the
 The list is a live region, so a screen reader hears "Uploading 40%" and
 "Done". Every option, method and event: [modules/upload.md](modules/upload.md).
 
-35. Tables that sort and page: `exp::datatable`
------------------------------------------------
+## 35. Tables that sort and page: `exp::datatable`
 
 The admin's sub-items table is the busiest widget Exponential has: sorting,
 pages, checkboxes, menus, a priority you edit in place. `exp::datatable` is
@@ -1629,8 +1584,7 @@ and the arrow keys move between the rows' controls in the spirit of the
 source, event and the admin's tables before and after:
 [modules/datatable.md](modules/datatable.md).
 
-36. Picking a date: `exp::datepicker`
--------------------------------------
+## 36. Picking a date: `exp::datepicker`
 
 Exponential's date fields are three small inputs, year, month and day, with a
 calendar icon beside them. In the admin, ezwebin and ezdemo the icon now opens
@@ -1682,8 +1636,7 @@ The keys follow the WAI-ARIA
 Options, `Exp.datepicker.open()` and the events:
 [modules/datepicker.md](modules/datepicker.md).
 
-37. Drafts that save themselves: `exp::autosave`
-------------------------------------------------
+## 37. Drafts that save themselves: `exp::autosave`
 
 Nobody should lose half an hour of writing to a closed tab. With the ezautosave
 extension active, the admin's edit page saves the draft by itself, every few
@@ -1732,11 +1685,9 @@ closed on `exp::collapse` (chapter 31). Every option and event:
 
 ---
 
-Part 9 — Looking ahead
-======================
+# Part 9 — Looking ahead
 
-38. Modules that are coming
----------------------------
+## 38. Modules that are coming
 
 Exponential UI grows release by release until every YUI feature has its
 replacement. With 1.0.0.1 the admin's content (tables, dialogs, uploads, date
@@ -1766,11 +1717,9 @@ to 37 did.
 
 ---
 
-Appendices
-==========
+# Appendices
 
-A. Quick reference card
------------------------
+## A. Quick reference card
 
 ```text
 TEMPLATE
@@ -1821,8 +1770,7 @@ CSS
   .exp-visually-hidden  .exp-focus-ring  .exp-scope  html.exp-js
 ```
 
-B. Troubleshooting
-------------------
+## B. Troubleshooting
 
 | You see | It means | Do |
 |---|---|---|
@@ -1839,8 +1787,7 @@ B. Troubleshooting
 
 More answers: [FAQ.md](FAQ.md).
 
-C. Glossary
------------
+## C. Glossary
 
 | Word | Means |
 |---|---|
@@ -1855,8 +1802,7 @@ C. Glossary
 | **design token** | a named design value such as `--exp-accent` |
 | **Promise** | an answer that arrives later; `.then()` runs when it does |
 
-D. Further reading
-------------------
+## D. Further reading
 
 **This extension**
 - [GETTING_STARTED.md](GETTING_STARTED.md) — the ten-minute tour

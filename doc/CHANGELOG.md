@@ -10,6 +10,9 @@ Updated
   are empty, so neither `exp::core` nor `ezjsc::jquery` loads it. The admin
   designs and the extensions they load no longer call an API jQuery 4 removed.
   The comments in both settings files say how to switch it back on.
+- The book's chapters and parts are `#` and `##` headings instead of underlined
+  ones, so the help system of Exponential finds the anchors of its table of
+  contents (39 links it reported as broken).
 
 Renamed
 - The book `doc/USEING_EXPUI.md` is `doc/USING_EXPUI.md`; the README and
