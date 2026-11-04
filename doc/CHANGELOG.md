@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+1.0.0.20 (2026-11-03)
+---------------------
 
 Updated
 - jQuery Migrate 4 is switched off: `[ExpUI] Migrate=disabled`, and
